@@ -126,11 +126,12 @@ public class CommandManager implements CommandExecutor{
         }
 		
 		if(!main.api.isPlotWorld(blockpos.getWorld())) return onVanilla(sender, label, args);
-		if(!main.canRun(blockpos)) return false;
+		if(	!main.getWhitelist().contains(label.toLowerCase()) ||
+			!main.canRun(blockpos)) return false;
 		
     	try{
     		Commands commandType = Commands.valueOf(label.toUpperCase());
-    		if(commandType == Commands.TP && args.length > 3) commandType = Commands.TPPOS;
+    		if(commandType.ordinal() == Commands.TP.ordinal() && args.length > 3) commandType = Commands.TPPOS;
     		elemType[] elements = commandType.getElements();
     		int i = 0;
     		Location prev = null;
@@ -211,8 +212,14 @@ public class CommandManager implements CommandExecutor{
     			i++;
     		}
     		if(invalidArgs.size() == 0) return onVanilla(sender, label, args);
+    		Logger logger = main.getLogger();
+    		logger.info("Command Execution failed! The following args are the reason:");
+    		for(String f : invalidArgs) logger.info(f + ": " + args[Integer.parseInt(f)]);
     		return false;
     	}catch(IllegalArgumentException|NullPointerException exc){
+    		Logger logger = main.getLogger();
+    		logger.info("Command Execution failed! Exception:");
+    		exc.printStackTrace();
     		return false;
     	}
     }
@@ -241,20 +248,20 @@ public class CommandManager implements CommandExecutor{
 	public Location getLocation(Location blockpos, String x, String y, String z){
 		double worldX = 0, worldY = 0, worldZ = 0;
 		if(x.contains("~")){
-			x = x.replaceAll("~", "");
+			x = x.replace("~", "");
 			worldX += blockpos.getX();
 		}
 		if(y.contains("~")){
-			y = y.replaceAll("~", "");
+			y = y.replace("~", "");
 			worldY += blockpos.getY();
 		}
 		if(z.contains("~")){
-			z = z.replaceAll("~", "");
+			z = z.replace("~", "");
 			worldZ += blockpos.getZ();
 		}
-		worldX += Double.parseDouble(x);
-		worldY += Double.parseDouble(y);
-		worldZ += Double.parseDouble(z);
+		if(!x.isEmpty())worldX += Double.parseDouble(x);
+		if(!y.isEmpty())worldY += Double.parseDouble(y);
+		if(!z.isEmpty())worldZ += Double.parseDouble(z);
 		return new Location(blockpos.getWorld(), worldX, worldY, worldZ);
 	}
 	

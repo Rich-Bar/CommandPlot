@@ -1,5 +1,8 @@
 package richbar.com.github.commandplot.command;
 
+import org.bukkit.Bukkit;
+import org.bukkit.event.inventory.InventoryType;
+
 import net.minecraft.server.v1_9_R1.CommandAbstract;
 import net.minecraft.server.v1_9_R1.CommandException;
 import net.minecraft.server.v1_9_R1.ICommand;
@@ -9,9 +12,8 @@ import net.minecraft.server.v1_9_R1.MinecraftServer;
 public class TransmitCommand extends CommandAbstract{
 
 	@Override
-	public void execute(MinecraftServer arg0, ICommandListener arg1,
-			String[] arg2) throws CommandException {
-		
+	public void execute(MinecraftServer server, ICommandListener listener, String[] command) throws CommandException {
+
 	}
 
 	@Override
