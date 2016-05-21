@@ -125,9 +125,9 @@ public class CommandManager implements CommandExecutor{
         	return onVanilla(sender, label, args);
         }
 		
-		if(!main.api.isPlotWorld(blockpos.getWorld())) return onVanilla(sender, label, args);
+		if(!main.check.getAPI().isPlotWorld(blockpos.getWorld())) return onVanilla(sender, label, args);
 		if(	!main.getWhitelist().contains(label.toLowerCase()) ||
-			!main.canRun(blockpos)) return false;
+			!main.check.canRun(blockpos)) return false;
 		
     	try{
     		Commands commandType = Commands.valueOf(label.toUpperCase());
@@ -150,7 +150,7 @@ public class CommandManager implements CommandExecutor{
 					case PLAYER:
 						Player player = getPlayer(args[commandType.getIndex(i)]);
 						if(player == null) return false;
-						if(!main.isSamePlot(blockpos, player.getLocation())) invalidArgs.add(commandType.getIndex(i)+ "");
+						if(!main.check.isSamePlot(blockpos, player.getLocation())) invalidArgs.add(commandType.getIndex(i)+ "");
 						break;
 						
 						
@@ -162,7 +162,7 @@ public class CommandManager implements CommandExecutor{
 						Location nLoc = getLocation(blockpos, args[indeX], args[indeY], args[indeZ]);
 						System.out.println(nLoc.toString());
 						
-						if(!main.isSamePlot(blockpos, nLoc)) 
+						if(!main.check.isSamePlot(blockpos, nLoc)) 
 							invalidArgs.add(indeX + "");
 						
 						if(commandType.ordinal() == Commands.CLONE.ordinal()){
@@ -181,8 +181,8 @@ public class CommandManager implements CommandExecutor{
 						System.out.println(nLoc.toString());
 						
 						if(commandType.ordinal() == Commands.CLONE.ordinal()){
-							if(	!main.isSamePlot(blockpos, nLoc) ||
-								!main.isSamePlot(nLoc, nLoc.add(prev.getX(), prev.getY(), prev.getZ())))
+							if(	!main.check.isSamePlot(blockpos, nLoc) ||
+								!main.check.isSamePlot(nLoc, nLoc.add(prev.getX(), prev.getY(), prev.getZ())))
 									invalidArgs.add(indeX + "");
 	
 						}else if(commandType.ordinal() == Commands.PARTICLE.ordinal()){
