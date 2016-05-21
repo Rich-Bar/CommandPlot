@@ -1,5 +1,6 @@
 package richbar.com.github.commandplot;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -26,74 +27,28 @@ import net.minecraft.server.v1_9_R1.BlockCommand;
 import net.minecraft.server.v1_9_R1.CommandBlockListenerAbstract;
 import net.minecraft.server.v1_9_R1.EntityMinecartCommandBlock;
 import net.minecraft.server.v1_9_R1.TileEntityCommand;
+import richbar.com.github.commandplot.util.SQLManager;
+import richbar.com.github.commandplot.util.SQLWrapper;
 
 public class CommandAccessor implements Listener {
 
-	List<UUID> tempOpped = new ArrayList<>();
+	private CommandBlockMode cbMode;
 	
-	@EventHandler
-	public void onInteract(PlayerInteractEvent e){
-		if(e.getClickedBlock().getType() == Material.COMMAND && e.getAction() == Action.RIGHT_CLICK_BLOCK){
-			System.out.println("Rightclicked a 'CraftCommandBlock'");
-			Player p = e.getPlayer();
-			
-			if(tempOpped.contains(p.getUniqueId())){
-				p.setOp(false);
-				tempOpped.remove(p.getUniqueId());
-			}
-			else{
-				p.setOp(true);
-				tempOpped.add(p.getUniqueId());
-				
-			}
-			if(p.hasPermission("plots.admin.op")) p.setOp(true);
-		}
+	public CommandAccessor(CommandBlockMode cbMode) {
+		this.cbMode = cbMode;
 	}
 	
 	@EventHandler
-	public void onInteract(PlayerInteractEntityEvent e){
-		if(e.getRightClicked().getType() == EntityType.MINECART_COMMAND){
-			System.out.println("Rightclicked a 'CraftMinecartCommand' [" + e.getRightClicked() + "]");  
-			Player p = e.getPlayer();
-			
-			if(tempOpped.contains(p.getUniqueId())){
-				p.setOp(false);
-				tempOpped.remove(p.getUniqueId());
-			}
-			else{
-				p.setOp(true);
-				tempOpped.add(p.getUniqueId());
-			}
-			if(p.hasPermission("plots.admin.op")) p.setOp(true);
-		}
-	}
-	
-	@EventHandler
-	public void onJoin(PlayerJoinEvent e){
+	public void onWorldSwitch(PlayerChangedWorldEvent e) throws SQLException{
 		Player p = e.getPlayer();
-		if(tempOpped.contains(p.getUniqueId())){
-			p.setOp(false);
-			tempOpped.remove(p.getUniqueId());
-		}
-		if(p.hasPermission("plots.admin.op")) p.setOp(true);
+		cbMode.removePlayer(p.getUniqueId());
+		p.setOp(false);
 	}
-	@EventHandler
-	public void onWorldSwitch(PlayerChangedWorldEvent e){
-		Player p = e.getPlayer();
-		if(tempOpped.contains(p.getUniqueId())){
-			p.setOp(false);
-			tempOpped.remove(p.getUniqueId());
-		}
-		if(p.hasPermission("plots.admin.op")) p.setOp(true);
-	}
+	
 	@EventHandler
 	public void onRespawn(PlayerRespawnEvent e){
 		Player p = e.getPlayer();
-		if(tempOpped.contains(p.getUniqueId())){
-			p.setOp(false);
-			tempOpped.remove(p.getUniqueId());
-		}
-		if(p.hasPermission("plots.admin.op")) p.setOp(true);
-	}
-	
+		cbMode.removePlayer(p.getUniqueId());
+		p.setOp(false);
+	}	
 }

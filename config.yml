@@ -1,0 +1,5 @@
+connection: 
+  database: jdbc:mysql://localhost:3306/
+  schema: database
+  username: user
+  password: password

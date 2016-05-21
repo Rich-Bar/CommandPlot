@@ -12,68 +12,93 @@ commands:
     description: Gives you a commandblock.
     permission: plots.commandblock
     permission-message: "You are lacking the permission node 'plots.commandblock'"
+  commandblockmode:
+    description: Allows you to edit Commandblocks.
+    permission: plots.commandblock.changemode
+    permission-message: "You are lacking the permission node 'plots.commandblock.changemode'"
   receive:
     permission: plots.commandblock.receive
+    description: Commandblock Command...
     permission-message: "You are lacking the permission node 'plots.commandblock.receive'"
   transmit:
     permission: plots.commandblock.transmit
+    description: Commandblock Command...
     permission-message: "You are lacking the permission node 'plots.commandblock.transmit'"
   say:
     permission: plots.commandblock.vanilla
+    description: Commandblock Command...
     permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
   kill:
     permission: plots.commandblock.vanilla
+    description: Commandblock Command...
     permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
   testfor:
     permission: plots.commandblock.vanilla
+    description: Commandblock Command...
     permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
   tell:
     permission: plots.commandblock.vanilla
+    description: Commandblock Command...
     permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
   tellraw:
     permission: plots.commandblock.vanilla
+    description: Commandblock Command...
     permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
   effect:
     permission: plots.commandblock.vanilla
+    description: Commandblock Command...
     permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
   enchant:
     permission: plots.commandblock.vanilla
+    description: Commandblock Command...
     permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
   gamemode:
     permission: plots.commandblock.vanilla
+    description: Commandblock Command...
     permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
   give:
     permission: plots.commandblock.vanilla
+    description: Commandblock Command...
     permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
   xp:
     permission: plots.commandblock.vanilla
+    description: Commandblock Command...
     permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
   tppos:
     permission: plots.commandblock.vanilla
+    description: Commandblock Command...
     permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
   tp:
     permission: plots.commandblock.vanilla
+    description: Commandblock Command...
     permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
   setblock:
     permission: plots.commandblock.vanilla
+    description: Commandblock Command...
     permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
   blockdata:
     permission: plots.commandblock.vanilla
+    description: Commandblock Command...
     permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
   fill:
     permission: plots.commandblock.vanilla
+    description: Commandblock Command...
     permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
   clone:
     permission: plots.commandblock.vanilla
+    description: Commandblock Command...
     permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
   summon:
     permission: plots.commandblock.vanilla
+    description: Commandblock Command...
     permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
   particle:
     permission: plots.commandblock.vanilla
+    description: Commandblock Command...
     permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
   playsound:
     permission: plots.commandblock.vanilla
+    description: Commandblock Command...
     permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
     
 permissions:
