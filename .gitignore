@@ -8,3 +8,5 @@ bin/
 *.ast
 *.jar
 *.class
+src/java/richbar/com/github/commandplot/command/pipeline/MapChanger.java
+src/java/richbar/com/github/commandplot/command/pipeline/MidExecutor.java
