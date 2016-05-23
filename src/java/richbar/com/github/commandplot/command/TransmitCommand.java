@@ -1,8 +1,5 @@
 package richbar.com.github.commandplot.command;
 
-import org.bukkit.Bukkit;
-import org.bukkit.event.inventory.InventoryType;
-
 import net.minecraft.server.v1_9_R1.CommandAbstract;
 import net.minecraft.server.v1_9_R1.CommandException;
 import net.minecraft.server.v1_9_R1.ICommand;

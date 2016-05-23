@@ -1,10 +1,7 @@
 package richbar.com.github.commandplot;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 import java.util.logging.Logger;
 
 import org.bukkit.Location;
@@ -111,6 +108,7 @@ public class CommandManager implements CommandExecutor{
 
 	
 	
+	@SuppressWarnings("deprecation")
 	@Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         Location blockpos = new Location(main.getServer().getWorlds().get(0), 0, 0, 0, 0, 0);
@@ -125,9 +123,8 @@ public class CommandManager implements CommandExecutor{
         	return onVanilla(sender, label, args);
         }
 		
-		if(!main.check.getAPI().isPlotWorld(blockpos.getWorld())) return onVanilla(sender, label, args);
-		if(	!main.getWhitelist().contains(label.toLowerCase()) ||
-			!main.check.canRun(blockpos)) return false;
+		if(!main.check.getAPI().isPlotWorld(blockpos.getWorld()))return onVanilla(sender, label, args);
+		if(!(main.getWhitelist().contains(label.toLowerCase()) && main.check.canRun(blockpos))) return false;
 		
     	try{
     		Commands commandType = Commands.valueOf(label.toUpperCase());
@@ -160,14 +157,12 @@ public class CommandManager implements CommandExecutor{
 						indeX = indeY -1;
 						
 						Location nLoc = getLocation(blockpos, args[indeX], args[indeY], args[indeZ]);
-						System.out.println(nLoc.toString());
 						
 						if(!main.check.isSamePlot(blockpos, nLoc)) 
 							invalidArgs.add(indeX + "");
 						
 						if(commandType.ordinal() == Commands.CLONE.ordinal()){
 							prev = i == 0? nLoc : prev.subtract(nLoc.getX(), nLoc.getY(), nLoc.getZ());
-							System.out.println(prev.toString());
 						}
 						break;
 						
@@ -178,7 +173,6 @@ public class CommandManager implements CommandExecutor{
 						indeX = indeY -1;
 						
 						nLoc = getLocation(blockpos, args[indeX], args[indeY], args[indeZ]);
-						System.out.println(nLoc.toString());
 						
 						if(commandType.ordinal() == Commands.CLONE.ordinal()){
 							if(	!main.check.isSamePlot(blockpos, nLoc) ||

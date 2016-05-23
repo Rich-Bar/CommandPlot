@@ -1,12 +1,12 @@
 name: CommandPlot
-description: Fixes Commandblocks for PlotSquared
+description: Fixes Commandblocks for PlotSquared [PRE ALPHA!]
 author: richbar
 
 main: richbar.com.github.commandplot.CPlugin
 
 depend: [PlotSquared]
 
-version: 1.0.0
+version: 0.2.2
 commands:
   commandblock:
     description: Gives you a commandblock.
