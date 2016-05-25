@@ -9,10 +9,11 @@ import richbar.com.github.commandplot.util.SQLWrapper;
 
 public class CommandBlockMode {
 
-	private List<UUID> activePlayers = new ArrayList<>();
+	private List<UUID> activePlayers;
 	private SQLManager sqlMan;
 	
 	public CommandBlockMode(SQLManager sqlMan) {
+		activePlayers = new ArrayList<>();
 		this.sqlMan = sqlMan;
 		loadFromDB();
 	}
@@ -40,7 +41,9 @@ public class CommandBlockMode {
 	}
 	
 	public void loadFromDB(){
-		for(String uid : sqlMan.mysqlqueryUUID(SQLWrapper.getAllPlayers())){
+		List<String> allPlayers = sqlMan.mysqlqueryUUID(SQLWrapper.getAllPlayers());
+		if(allPlayers.isEmpty()) return;
+		for(String uid : allPlayers){
 			UUID uuid = UUID.fromString(uid);
 			if(!activePlayers.contains(uuid)) activePlayers.add(uuid);
 		}

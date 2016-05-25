@@ -1,9 +1,11 @@
 package richbar.com.github.commandplot.command;
 
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import richbar.com.github.commandplot.CommandBlockMode;
 
@@ -19,12 +21,16 @@ public class CBModeCommand implements CommandExecutor{
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if(sender instanceof Player){
 			Player p = (Player) sender;
-			if(args.length > 0){
-				if(args[0].equalsIgnoreCase("true")) return disableMode(p);
-				return enableMode(p);
-			}else
-				if(cbMode.isActive(p.getUniqueId())) return disableMode(p);
-				return enableMode(p);
+			if(label.equalsIgnoreCase("commandblockmode")){
+				if(args.length > 0){
+					if(args[0].equalsIgnoreCase("true")) return disableMode(p);
+					return enableMode(p);
+				}else
+					if(cbMode.isActive(p.getUniqueId())) return disableMode(p);
+					return enableMode(p);
+			}else if(label.equalsIgnoreCase("commandblock")){
+				p.getInventory().addItem(new ItemStack(Material.COMMAND, 1));
+			}
 		}
 		return false;
 	}

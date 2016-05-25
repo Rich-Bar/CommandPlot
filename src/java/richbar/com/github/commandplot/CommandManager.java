@@ -1,56 +1,81 @@
 package richbar.com.github.commandplot;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.v1_9_R1.command.VanillaCommandWrapper;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.minecart.CommandMinecart;
+
+import org.bukkit.craftbukkit.v1_9_R1.command.VanillaCommandWrapper;
 import net.minecraft.server.v1_9_R1.CommandAbstract;
 import net.minecraft.server.v1_9_R1.CommandBlockData;
+import net.minecraft.server.v1_9_R1.CommandClear;
 import net.minecraft.server.v1_9_R1.CommandClone;
 import net.minecraft.server.v1_9_R1.CommandEffect;
 import net.minecraft.server.v1_9_R1.CommandEnchant;
+import net.minecraft.server.v1_9_R1.CommandEntityData;
 import net.minecraft.server.v1_9_R1.CommandFill;
 import net.minecraft.server.v1_9_R1.CommandGamemode;
 import net.minecraft.server.v1_9_R1.CommandGive;
 import net.minecraft.server.v1_9_R1.CommandKill;
 import net.minecraft.server.v1_9_R1.CommandParticle;
 import net.minecraft.server.v1_9_R1.CommandPlaySound;
+import net.minecraft.server.v1_9_R1.CommandReplaceItem;
 import net.minecraft.server.v1_9_R1.CommandSay;
 import net.minecraft.server.v1_9_R1.CommandSetBlock;
 import net.minecraft.server.v1_9_R1.CommandSummon;
 import net.minecraft.server.v1_9_R1.CommandTell;
 import net.minecraft.server.v1_9_R1.CommandTellRaw;
 import net.minecraft.server.v1_9_R1.CommandTestFor;
+import net.minecraft.server.v1_9_R1.CommandTitle;
 import net.minecraft.server.v1_9_R1.CommandTp;
+import net.minecraft.server.v1_9_R1.CommandTrigger;
 import net.minecraft.server.v1_9_R1.CommandXp;
-import richbar.com.github.commandplot.command.ReceiveCommand;
-import richbar.com.github.commandplot.command.TransmitCommand;
+
+import richbar.com.github.commandplot.command.CommandReceive;
+import richbar.com.github.commandplot.command.CommandTransmit;
+import richbar.com.github.commandplot.command.ExecuteSender;
 
 public class CommandManager implements CommandExecutor{
 	public enum Commands{
+		
 		SAY		(new CommandSay(), elemType.REST),
-		RECEIVE	(new ReceiveCommand(), elemType.REST),
-		TRANSMIT(new TransmitCommand(), elemType.REST),
-		KILL	(new CommandKill(), elemType.PLAYER),
+		CLEAR	(new CommandClear(), elemType.PLAYER, elemType.REST),
+		ENTITYDATA(new CommandEntityData(),elemType.ENTITY, elemType.REST),
+		REPLACEITEM(new CommandReplaceItem(), elemType.ARG, elemType.ENTITYorCOORD, elemType.REST),
+		REPLACEITEMCOORD(new CommandReplaceItem(), elemType.ARG, elemType.COORDS, elemType.REST),
+		TRIGGER(new CommandTrigger(), elemType.REST),
+		
+		//SCOREBOARD(new CommandScoreboard(), elemType.REST), //TODO: Implement Scoremoard
+		//EXECUTE(new CommandExecute(), elemType.ENTITY, elemType.DCOORDS, elemType.COMMAND),
+		
+		RECEIVE	(new CommandReceive(), elemType.REST),
+		TRANSMIT(new CommandTransmit(), elemType.REST),
+		
+		KILL	(new CommandKill(), elemType.ENTITY),
 		TESTFOR	(new CommandTestFor(), elemType.PLAYER, elemType.REST),
 		TELL	(new CommandTell(), elemType.PLAYER, elemType.REST),
 		TELLRAW	(new CommandTellRaw(), elemType.PLAYER, elemType.REST),
-		EFFECT	(new CommandEffect(), elemType.PLAYER, elemType.REST),
+		EFFECT	(new CommandEffect(), elemType.ENTITY, elemType.REST),
 		ENCHANT	(new CommandEnchant(), elemType.PLAYER, elemType.REST),
-		GAMEMODE(new CommandGamemode(), elemType.PLAYER, elemType.REST),
-		//TITLE	(3, elemType.PLAYER, elemType.REST, Command),  --No Implementation found!
-		GIVE	(new CommandGive(), elemType.PLAYER, elemType.REST),
-		XP		(new CommandXp(), elemType.PLAYER, elemType.REST),
-		TPPOS	(new CommandTp(), elemType.PLAYER, elemType.COORDS),
-		TP		(new CommandTp(), elemType.PLAYER, elemType.PLAYER),
+		GAMEMODE(new CommandGamemode(), elemType.ARG, elemType.PLAYER),
+		TITLE	(new CommandTitle(), elemType.PLAYER, elemType.REST),
+		GIVE	(new CommandGive(), elemType.PLAYER, elemType.ARG, elemType.REST),
+		XP		(new CommandXp(), elemType.ARG, elemType.PLAYER),
+		TP		(new CommandTp(), elemType.PLAYER, elemType.ENTITYorCOORD),
+		TPCOORD	(new CommandTp(), elemType.PLAYER, elemType.COORDS),
 		SETBLOCK(new CommandSetBlock(), elemType.COORDS, elemType.REST),
 		BLOCKDATA(new CommandBlockData(),elemType.COORDS, elemType.REST),
 		FILL	(new CommandFill(), elemType.COORDS, elemType.COORDS, elemType.REST),
@@ -82,6 +107,8 @@ public class CommandManager implements CommandExecutor{
 				switch(elements[i]){
 				case MOB:
 				case PLAYER:
+				case ENTITY:
+				case ENTITYorCOORD:
 				case ARG:
 				case MAX1:
 				case MAX2: 
@@ -98,7 +125,7 @@ public class CommandManager implements CommandExecutor{
 		}
 	}
 	public static enum elemType{
-		MOB, PLAYER, COORDS, DCOORDS, ARG, MAX1, MAX2, REST;
+		MOB, ENTITY, COORDS, DCOORDS, ARG, MAX1, MAX2, REST, PLAYER, COMMAND, ENTITYorCOORD;
 	}
 	CPlugin main;
 	
@@ -112,33 +139,53 @@ public class CommandManager implements CommandExecutor{
 	@Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         Location blockpos = new Location(main.getServer().getWorlds().get(0), 0, 0, 0, 0, 0);
+        boolean isCart = false;
         
 		if(sender instanceof BlockCommandSender) {
             // Commandblock executed command
 			blockpos = ((BlockCommandSender) sender).getBlock().getLocation();
-        }else if(sender instanceof CommandMinecart) {
+        }else if(sender instanceof CommandMinecart || sender instanceof ExecuteSender) {
             // Minecart Commandlock executed command
         	blockpos = ((CommandMinecart) sender).getLocation();
+        	isCart = true;
         }else{
         	return onVanilla(sender, label, args);
         }
 		
+		
 		if(!main.check.getAPI().isPlotWorld(blockpos.getWorld()))return onVanilla(sender, label, args);
-		if(!(main.getWhitelist().contains(label.toLowerCase()) && main.check.canRun(blockpos))) return false;
+		if(!(main.getWhitelist().contains(label.toLowerCase()) || !main.check.canRun(blockpos))) return false;
 		
     	try{
     		Commands commandType = Commands.valueOf(label.toUpperCase());
-    		if(commandType.ordinal() == Commands.TP.ordinal() && args.length > 3) commandType = Commands.TPPOS;
     		elemType[] elements = commandType.getElements();
-    		int i = 0;
+    		
+    		if(commandType.ordinal() == Commands.REPLACEITEM.ordinal() && ! args[1].toLowerCase().contains("slot")) 
+    			commandType = Commands.REPLACEITEMCOORD;
+        	if(commandType.ordinal() == Commands.TP.ordinal() && args.length > 2)
+        		commandType = Commands.TPCOORD; 
+    		
     		Location prev = null;
+    		List<Object> artifacts = new ArrayList<>();
     		List<String> invalidArgs = new ArrayList<>();
+    		
+    		int i = 0;
     		for(elemType element : elements){
     			if(element == elemType.REST || commandType.getIndex(i) >= args.length) break;
     			switch (element) {
+    				case ARG:
+    					if(commandType.ordinal() == Commands.GIVE.ordinal() && args[1].replace(":", "").contains(":")){
+    						String tmp = args[1].substring(args[1].lastIndexOf(":"), args[1].length());
+    						if(args.length == 4)
+    							args = new String[]{args[0], args[1], args[2], tmp, args[3]};
+    						else
+    							args = new String[]{args[0], args[1], args[2], tmp};
+    					}
+    					break;
 					case MOB:
 						String[] blacklistedMobs = {"PrimedTnt", "Endermite", "Silverfish", "Ghast", "Enderman", "Blaze", "WitherBoss", "EnderDragon", "FallingSand", "ShulkerBullet"};
 						String requested = args[commandType.getIndex(i)];
+						artifacts.add(requested);
 						for(String blackMob : blacklistedMobs)
 							if(blackMob.equals(requested)) invalidArgs.add(commandType.getIndex(i)+ "");
 						break;
@@ -146,8 +193,19 @@ public class CommandManager implements CommandExecutor{
 						
 					case PLAYER:
 						Player player = getPlayer(args[commandType.getIndex(i)]);
-						if(player == null) return false;
+						artifacts.add(player);
+						if(player == null) invalidArgs.add(commandType.getIndex(i)+ "");
 						if(!main.check.isSamePlot(blockpos, player.getLocation())) invalidArgs.add(commandType.getIndex(i)+ "");
+						break;
+						
+						
+					case ENTITYorCOORD:
+					case ENTITY:
+						Map<UUID, Entity> uuidSet = getUUIDset((Entity[]) blockpos.getWorld().getEntities().toArray());
+ 						Entity e  = uuidSet.get(args[commandType.getIndex(i)]);
+ 						artifacts.add(e);
+						if(e == null) invalidArgs.add(commandType.getIndex(i)+ "");
+						if(!main.check.isSamePlot(blockpos, e.getLocation())) invalidArgs.add(commandType.getIndex(i)+ "");
 						break;
 						
 						
@@ -156,7 +214,8 @@ public class CommandManager implements CommandExecutor{
 						indeY = indeZ -1,
 						indeX = indeY -1;
 						
-						Location nLoc = getLocation(blockpos, args[indeX], args[indeY], args[indeZ]);
+						isLocation nLoc = getLocation(blockpos, args[indeX], args[indeY], args[indeZ]);
+						artifacts.add(nLoc);
 						
 						if(!main.check.isSamePlot(blockpos, nLoc)) 
 							invalidArgs.add(indeX + "");
@@ -173,6 +232,7 @@ public class CommandManager implements CommandExecutor{
 						indeX = indeY -1;
 						
 						nLoc = getLocation(blockpos, args[indeX], args[indeY], args[indeZ]);
+						artifacts.add(nLoc);
 						
 						if(commandType.ordinal() == Commands.CLONE.ordinal()){
 							if(	!main.check.isSamePlot(blockpos, nLoc) ||
@@ -187,11 +247,28 @@ public class CommandManager implements CommandExecutor{
 						break;
 						
 						
+					case COMMAND:
+						
+						if(((isLocation) artifacts.get(1)).isRelative){
+							if(isCart) sender = new ExecuteSender(((isLocation) artifacts.get(1)).clone());
+						}
+						String detect = args[commandType.getIndex(i)];
+						if(detect.equalsIgnoreCase("detect")){
+							String full = Arrays.toString(args);
+							detect = full.substring(full.indexOf("/"), args.length);
+						}
+						System.out.println("Execute next: " + detect);
+						//Commands newCommand = Commands.valueOf(detect);
+						//return onCommand(sender, newCommand.id, label, args);
+						break;
+						
+						
 					case MAX1:
 						double dm1 = Double.parseDouble(args[commandType.getIndex(i)]);
 						if(dm1 > 1.00) dm1 = 1.00;
 						else if(dm1 < 0.00) dm1 = 0.00;
 						args[commandType.getIndex(i)] = dm1 +"";
+						artifacts.add(dm1);
 						break;
 						
 						
@@ -200,15 +277,15 @@ public class CommandManager implements CommandExecutor{
 						if(dm2 > 1.00) dm2 = 1.00;
 						else if(dm2 < 0.00) dm2 = 0.00;
 						args[commandType.getIndex(i)] = dm2 +"";
+						artifacts.add(dm2);
 					default:break;
 					
 				}
     			i++;
     		}
     		if(invalidArgs.size() == 0) return onVanilla(sender, label, args);
-    		Logger logger = main.getLogger();
-    		logger.info("Command Execution failed! The following args are the reason:");
-    		for(String f : invalidArgs) logger.info(f + ": " + args[Integer.parseInt(f)]);
+    		sender.sendMessage("Command Execution failed! The following args are the reason:");
+    		for(String f : invalidArgs) sender.sendMessage(f + ": " + args[Integer.parseInt(f)]);
     		return false;
     	}catch(IllegalArgumentException|NullPointerException exc){
     		Logger logger = main.getLogger();
@@ -222,7 +299,6 @@ public class CommandManager implements CommandExecutor{
 	{
     	try{
     		Commands commandType = Commands.valueOf(label.toUpperCase());
-    		if(commandType == Commands.TP && args.length > 3) commandType = Commands.TPPOS;
     		VanillaCommandWrapper wrap = new VanillaCommandWrapper(commandType.id);
     		return wrap.execute(sender, label, args);
     	}catch(IllegalArgumentException|NullPointerException exc){
@@ -239,24 +315,53 @@ public class CommandManager implements CommandExecutor{
 		return null;
 	}
 	
-	public Location getLocation(Location blockpos, String x, String y, String z){
+	public isLocation getLocation(Location blockpos, String x, String y, String z){
 		double worldX = 0, worldY = 0, worldZ = 0;
+		boolean isRelative = false;
 		if(x.contains("~")){
 			x = x.replace("~", "");
 			worldX += blockpos.getX();
+			isRelative = true;
 		}
 		if(y.contains("~")){
 			y = y.replace("~", "");
 			worldY += blockpos.getY();
+			isRelative = true;
 		}
 		if(z.contains("~")){
 			z = z.replace("~", "");
 			worldZ += blockpos.getZ();
+			isRelative = true;
 		}
 		if(!x.isEmpty())worldX += Double.parseDouble(x);
 		if(!y.isEmpty())worldY += Double.parseDouble(y);
 		if(!z.isEmpty())worldZ += Double.parseDouble(z);
-		return new Location(blockpos.getWorld(), worldX, worldY, worldZ);
+		return new isLocation(blockpos.getWorld(), worldX, worldY, worldZ, isRelative);
+	}
+	
+	private Map<UUID, Entity> getUUIDset(Entity... es){
+		Map<UUID, Entity> res = new HashMap<>();
+		for(Entity e : es){
+			res.put(e.getUniqueId(), e);
+		}
+		return res;
+	}
+	
+	private class isLocation extends Location{
+
+		public boolean isRelative;
+		
+		public isLocation(World world, double x, double y, double z, boolean isRelative) {
+			super(world, x, y, z);
+			this.isRelative = isRelative;
+		}
+		
+		public isLocation(Location loc, boolean isRelative) {
+			super(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
+			this.isRelative = isRelative;
+		}
+		
+		
 	}
 	
 	

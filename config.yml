@@ -1,5 +1,40 @@
 connection: 
-  database: jdbc:mysql://localhost:3306/
+  host: jdbc:mysql://localhost:3306/
   schema: database
   username: user
   password: password
+  
+#
+# Permissions 
+# - change '.cb' to '.player' to make it accessible by the player.
+#
+
+commands:
+  commandblock: plots.commandblock.cb
+  commandblockmode: plots.commandblock.cb
+  receive: plots.commandblock.cb
+  transmit: plots.commandblock.cb
+  say: plots.commandblock.cb
+  kill: plots.commandblock.cb
+  testfor: plots.commandblock.cb
+  tell: plots.commandblock.cb
+  tellraw: plots.commandblock.cb
+  effect: plots.commandblock.cb
+  enchant: plots.commandblock.cb
+  gamemode: plots.commandblock.cb
+  give: plots.commandblock.cb
+  xp: plots.commandblock.cb
+  tppos: plots.commandblock.cb
+  tp: plots.commandblock.cb
+  setblock: plots.commandblock.cb
+  blockdata: plots.commandblock.cb
+  fill: plots.commandblock.cb
+  clone: plots.commandblock.cb
+  summon: plots.commandblock.cb
+  particle: plots.commandblock.cb
+  playsound: plots.commandblock.cb
+  clear: plots.commandblock.cb
+  entitydata: plots.commandblock.cb
+  replaceitem: plots.commandblock.cb
+  trigger: plots.commandblock.cb
+  title: plots.commandblock.cb

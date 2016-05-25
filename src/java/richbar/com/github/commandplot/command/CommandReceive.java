@@ -6,7 +6,7 @@ import net.minecraft.server.v1_9_R1.ICommand;
 import net.minecraft.server.v1_9_R1.ICommandListener;
 import net.minecraft.server.v1_9_R1.MinecraftServer;
 
-public class ReceiveCommand extends CommandAbstract{
+public class CommandReceive extends CommandAbstract{
 
 	@Override
 	public void execute(MinecraftServer server, ICommandListener listener, String[] command) throws CommandException {

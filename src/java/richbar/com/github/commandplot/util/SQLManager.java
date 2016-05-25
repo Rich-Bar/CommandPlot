@@ -65,7 +65,7 @@ public class SQLManager {
             return result;
     	}catch (SQLException e) {
     		logger.warning("Could not execute SQL query! [" + query + "]");
-    		return null;
+    		return new ArrayList<String>();
 		}
     }
 }
