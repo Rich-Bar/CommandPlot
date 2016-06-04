@@ -4,33 +4,33 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
-import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.intellectualcrafters.plot.api.PlotAPI;
+import com.intellectualcrafters.plot.PS;
 
 import richbar.com.github.commandplot.CommandManager.Commands;
+import richbar.com.github.commandplot.api.PlotChecker;
+import richbar.com.github.commandplot.api.PlotSquaredChecker;
 import richbar.com.github.commandplot.command.CBModeCommand;
+import richbar.com.github.commandplot.command.CustomCommand;
 import richbar.com.github.commandplot.command.pipeline.*;
 import richbar.com.github.commandplot.util.CustomConfig;
-import richbar.com.github.commandplot.util.PlotAPIChecker;
 import richbar.com.github.commandplot.util.SQLManager;
 import richbar.com.github.commandplot.util.SQLWrapper;
 
 public class CPlugin extends JavaPlugin{
 
 	public SQLManager sqlMan;
-	public PlotAPIChecker check;
+	public PlotChecker<?> check;
 	private CustomConfig config;
-    private CommandManager cmdMan;
+    public CommandManager cmdMan;
     private CommandAccessor cmdAcc;
     protected CommandBlockMode cbMode;
     
     private List<String> whitelist = new ArrayList<>();
 
-	@SuppressWarnings("deprecation")
 	@Override
     public void onEnable() {
 		
@@ -40,8 +40,8 @@ public class CPlugin extends JavaPlugin{
         if(plotsquared != null && !plotsquared.isEnabled()) {
             manager.disablePlugin(this);
             return;
-        }
-        check = new PlotAPIChecker(new PlotAPI(this));
+        }else
+        check = new PlotSquaredChecker(PS.get());
         
         config = new CustomConfig(this, "config.yml");
         String host = config.getConfig().getString("connection.host");
@@ -61,25 +61,14 @@ public class CPlugin extends JavaPlugin{
         manager.registerEvents(cmdAcc, this);
         
         for(Commands command : Commands.values()){
-	        String cmd = command.getInst().getCommand().toLowerCase();
-	        PluginCommand pluginCommand = this.getCommand(cmd);
-	        getLogger().info("Registering Command " + cmd);
-	        
-	        whitelist.add(cmd.toLowerCase());
-	        
-	        if(!config.getConfig().contains("commands."+ cmd))
-	        	config.getConfig().addDefault("commands."+ cmd, "plots.commandblock.cb");
-	        String permission = config.getConfig().getString("commands." + cmd);
-	        permission = !(permission == null)? permission : "plots.commandblock.cb";
-	        pluginCommand.setPermission(permission);
-	        
-	        pluginCommand.setExecutor(cmdMan);
+	        whitelist.add(command.id.getCommand().toLowerCase());
 	    }
-        config.saveConfig();
-    	config.reloadConfig();
         
         getCommand("commandblockmode").setExecutor(new CBModeCommand(cbMode));
         getCommand("commandblock").setExecutor(new CBModeCommand(cbMode));
+        getCommand("transmit").setExecutor((CustomCommand) Commands.TRANSMIT.id);
+        
+        
         /*
          * You can buy this plugin from me
          * [Skype: MarcoDiRich | bit.do/RichY]
@@ -88,11 +77,17 @@ public class CPlugin extends JavaPlugin{
          * it is used for disabling commandblocks
          * from running other commands than specified!
          */
-        	try {
-				Class.forName("richbar.com.github.commandplot.command.pipeline.MapChanger");
-		        
-				MapChanger map = new MapChanger(this);
-		        try {
+        getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
+        	 public void run() {
+        		 try {
+					Class.forName("richbar.com.github.commandplot.command.pipeline.SimpleCommandManager");
+				    getLogger().info("Overriding Standart executors!..");
+	        	} catch (ClassNotFoundException e1) {
+					getLogger().info("This is the free Version!");
+					getLogger().info("Commandblocks may run anything...");
+				}
+				MapChanger map = new MapChanger(CPlugin.getPlugin(CPlugin.class));
+			    try {
 					map.registerMiddleExecutor();
 				} catch (NoSuchFieldException | SecurityException
 						| IllegalArgumentException | IllegalAccessException e) {
@@ -100,10 +95,8 @@ public class CPlugin extends JavaPlugin{
 					 getLogger().warning("Commandblocks might run commands of Plugins!!!");
 					e.printStackTrace();
 				}
-        	} catch (ClassNotFoundException e1) {
-				getLogger().info("This is the free Version!");
-				getLogger().info("Commandblocks may run anything...");
 			}
+		}, 100L); 	
     }
 
 	public List<String> getWhitelist(){

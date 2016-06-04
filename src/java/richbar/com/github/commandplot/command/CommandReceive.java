@@ -1,16 +1,20 @@
 package richbar.com.github.commandplot.command;
 
-import net.minecraft.server.v1_9_R1.CommandAbstract;
-import net.minecraft.server.v1_9_R1.CommandException;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+
 import net.minecraft.server.v1_9_R1.ICommand;
 import net.minecraft.server.v1_9_R1.ICommandListener;
-import net.minecraft.server.v1_9_R1.MinecraftServer;
 
-public class CommandReceive extends CommandAbstract{
+public class CommandReceive extends CustomCommand{
 
 	@Override
-	public void execute(MinecraftServer server, ICommandListener listener, String[] command) throws CommandException {
+	public boolean onCommand(CommandSender paramCommandSender,
+			Command paramCommand, String paramString,
+			String[] paramArrayOfString) {
 		
+		
+		return false;
 	}
 
 	@Override
@@ -20,7 +24,7 @@ public class CommandReceive extends CommandAbstract{
 
 	@Override
 	public String getUsage(ICommandListener arg0) {
-		return "[only Commandblocks!] use 'receive <x y z> <x y z>' to open this commandblock for 'transmit' command";
+		return "[only Commandblocks!] use 'receive <x y z> [<x y z> ...]' to open this commandblock for 'transmit' command";
 	}
 
 	@Override

@@ -9,14 +9,13 @@ import java.util.UUID;
 import java.util.logging.Logger;
 
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.minecart.CommandMinecart;
+import org.bukkit.util.Java15Compat;
 
 import org.bukkit.craftbukkit.v1_9_R1.command.VanillaCommandWrapper;
 import net.minecraft.server.v1_9_R1.CommandAbstract;
@@ -26,6 +25,7 @@ import net.minecraft.server.v1_9_R1.CommandClone;
 import net.minecraft.server.v1_9_R1.CommandEffect;
 import net.minecraft.server.v1_9_R1.CommandEnchant;
 import net.minecraft.server.v1_9_R1.CommandEntityData;
+import net.minecraft.server.v1_9_R1.CommandExecute;
 import net.minecraft.server.v1_9_R1.CommandFill;
 import net.minecraft.server.v1_9_R1.CommandGamemode;
 import net.minecraft.server.v1_9_R1.CommandGive;
@@ -35,56 +35,65 @@ import net.minecraft.server.v1_9_R1.CommandPlaySound;
 import net.minecraft.server.v1_9_R1.CommandReplaceItem;
 import net.minecraft.server.v1_9_R1.CommandSay;
 import net.minecraft.server.v1_9_R1.CommandSetBlock;
+import net.minecraft.server.v1_9_R1.CommandSpreadPlayers;
 import net.minecraft.server.v1_9_R1.CommandSummon;
 import net.minecraft.server.v1_9_R1.CommandTell;
 import net.minecraft.server.v1_9_R1.CommandTellRaw;
 import net.minecraft.server.v1_9_R1.CommandTestFor;
+import net.minecraft.server.v1_9_R1.CommandTestForBlock;
+import net.minecraft.server.v1_9_R1.CommandTestForBlocks;
 import net.minecraft.server.v1_9_R1.CommandTitle;
 import net.minecraft.server.v1_9_R1.CommandTp;
 import net.minecraft.server.v1_9_R1.CommandTrigger;
 import net.minecraft.server.v1_9_R1.CommandXp;
 
+import richbar.com.github.commandplot.api.PlotChecker;
 import richbar.com.github.commandplot.command.CommandReceive;
 import richbar.com.github.commandplot.command.CommandTransmit;
+import richbar.com.github.commandplot.command.CustomCommand;
 import richbar.com.github.commandplot.command.ExecuteSender;
+import richbar.com.github.commandplot.util.IsLocation;
 
-public class CommandManager implements CommandExecutor{
+public class CommandManager extends Command{
 	public enum Commands{
-		
-		SAY		(new CommandSay(), elemType.REST),
+
+		BLOCKDATA(new CommandBlockData(),elemType.COORDS, elemType.REST),
 		CLEAR	(new CommandClear(), elemType.PLAYER, elemType.REST),
-		ENTITYDATA(new CommandEntityData(),elemType.ENTITY, elemType.REST),
-		REPLACEITEM(new CommandReplaceItem(), elemType.ARG, elemType.ENTITYorCOORD, elemType.REST),
-		REPLACEITEMCOORD(new CommandReplaceItem(), elemType.ARG, elemType.COORDS, elemType.REST),
-		TRIGGER(new CommandTrigger(), elemType.REST),
-		
-		//SCOREBOARD(new CommandScoreboard(), elemType.REST), //TODO: Implement Scoremoard
-		//EXECUTE(new CommandExecute(), elemType.ENTITY, elemType.DCOORDS, elemType.COMMAND),
-		
-		RECEIVE	(new CommandReceive(), elemType.REST),
-		TRANSMIT(new CommandTransmit(), elemType.REST),
-		
-		KILL	(new CommandKill(), elemType.ENTITY),
-		TESTFOR	(new CommandTestFor(), elemType.PLAYER, elemType.REST),
-		TELL	(new CommandTell(), elemType.PLAYER, elemType.REST),
-		TELLRAW	(new CommandTellRaw(), elemType.PLAYER, elemType.REST),
+		CLONE	(new CommandClone(), elemType.COORDS, elemType.COORDS, elemType.DCOORDS, elemType.REST),
 		EFFECT	(new CommandEffect(), elemType.ENTITY, elemType.REST),
 		ENCHANT	(new CommandEnchant(), elemType.PLAYER, elemType.REST),
+		ENTITYDATA(new CommandEntityData(),elemType.ENTITY, elemType.REST),
+		EXECUTE(new CommandExecute(), elemType.ENTITY, elemType.DCOORDS, elemType.COMMAND),
+		FILL	(new CommandFill(), elemType.COORDS, elemType.COORDS, elemType.REST),
 		GAMEMODE(new CommandGamemode(), elemType.ARG, elemType.PLAYER),
-		TITLE	(new CommandTitle(), elemType.PLAYER, elemType.REST),
 		GIVE	(new CommandGive(), elemType.PLAYER, elemType.ARG, elemType.REST),
-		XP		(new CommandXp(), elemType.ARG, elemType.PLAYER),
+		KILL	(new CommandKill(), elemType.ENTITY),
+		PARTICLE(new CommandParticle(), elemType.ARG, elemType.COORDS, elemType.DCOORDS, elemType.REST),
+		PLAYSOUND(new CommandPlaySound(),elemType.ARG, elemType.ARG, elemType.PLAYER, elemType.COORDS, elemType.MAX2, elemType.MAX2, elemType.MAX1),
+		RECEIVE	(new CommandReceive(), elemType.REST),
+		REPLACEITEM(new CommandReplaceItem(), elemType.ARG, elemType.ENTITYorCOORD, elemType.REST),
+		REPLACEITEMCOORD(new CommandReplaceItem(), elemType.ARG, elemType.COORDS, elemType.REST),
+		SAY		(new CommandSay(), elemType.REST),
+		
+		//SCOREBOARD(new CommandScoreboard(), elemType.REST), //TODO: Implement Scoremoard
+		//STATS(...),
+		
+		SETBLOCK(new CommandSetBlock(), elemType.COORDS, elemType.REST),
+		SPREADPLAYERS(new CommandSpreadPlayers(), elemType.DCOORDS, elemType.ARG, elemType.ARG, elemType.ARG, elemType.ENTITY, elemType.REST),
+		SUMMON	(new CommandSummon(), elemType.MOB, elemType.COORDS, elemType.REST),
+		TELL	(new CommandTell(), elemType.PLAYER, elemType.REST),
+		TELLRAW	(new CommandTellRaw(), elemType.PLAYER, elemType.REST),
+		TESTFOR	(new CommandTestFor(), elemType.PLAYER, elemType.REST),
+		TESTFORBLOCK(new CommandTestForBlock(), elemType.COORDS, elemType.REST),
+		TESTFORBLOCKS(new CommandTestForBlocks(), elemType.COORDS, elemType.COORDS, elemType.REST),
+		TITLE	(new CommandTitle(), elemType.PLAYER, elemType.REST),
 		TP		(new CommandTp(), elemType.PLAYER, elemType.ENTITYorCOORD),
 		TPCOORD	(new CommandTp(), elemType.PLAYER, elemType.COORDS),
-		SETBLOCK(new CommandSetBlock(), elemType.COORDS, elemType.REST),
-		BLOCKDATA(new CommandBlockData(),elemType.COORDS, elemType.REST),
-		FILL	(new CommandFill(), elemType.COORDS, elemType.COORDS, elemType.REST),
-		CLONE	(new CommandClone(), elemType.COORDS, elemType.COORDS, elemType.DCOORDS, elemType.REST),
-		SUMMON	(new CommandSummon(), elemType.MOB, elemType.COORDS, elemType.REST),
-		PARTICLE(new CommandParticle(), elemType.ARG, elemType.COORDS, elemType.DCOORDS, elemType.REST),
-		PLAYSOUND(new CommandPlaySound(),elemType.ARG, elemType.ARG, elemType.PLAYER, elemType.COORDS, elemType.MAX2, elemType.MAX2, elemType.MAX1);
+		TRANSMIT(new CommandTransmit(), elemType.REST),
+		TRIGGER(new CommandTrigger(), elemType.REST),
+		XP		(new CommandXp(), elemType.ARG, elemType.PLAYER);
 		
-		private CommandAbstract id;
+		CommandAbstract id;
 		private elemType[] elements;
 		private Commands(CommandAbstract typeID, elemType... elements) {
 			this.elements = elements;
@@ -127,34 +136,41 @@ public class CommandManager implements CommandExecutor{
 	public static enum elemType{
 		MOB, ENTITY, COORDS, DCOORDS, ARG, MAX1, MAX2, REST, PLAYER, COMMAND, ENTITYorCOORD;
 	}
-	CPlugin main;
 	
-	public CommandManager(CPlugin cPlugin) {
+	
+	CPlugin main;
+	PlotChecker<?> checker;
+	public CommandManager(CPlugin cPlugin, Command c) {
+		super(c.getName(), c.getDescription(), c.getUsage(), c.getAliases());
 		main = cPlugin;
+		checker = main.check;
 	}
 
-	
-	
-	@SuppressWarnings("deprecation")
+	public CommandManager(CPlugin cPlugin, CommandAbstract inst) {
+		super(inst.getCommand());
+	}
+
 	@Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean execute(CommandSender sender, String label, String[] args) {
         Location blockpos = new Location(main.getServer().getWorlds().get(0), 0, 0, 0, 0, 0);
         boolean isCart = false;
-        
 		if(sender instanceof BlockCommandSender) {
             // Commandblock executed command
 			blockpos = ((BlockCommandSender) sender).getBlock().getLocation();
-        }else if(sender instanceof CommandMinecart || sender instanceof ExecuteSender) {
+        }else if(sender instanceof CommandMinecart) {
             // Minecart Commandlock executed command
         	blockpos = ((CommandMinecart) sender).getLocation();
         	isCart = true;
+        }else if(sender instanceof ExecuteSender) {
+            // Execute
+            blockpos = ((ExecuteSender) sender).getLocation();
         }else{
         	return onVanilla(sender, label, args);
         }
 		
 		
-		if(!main.check.getAPI().isPlotWorld(blockpos.getWorld()))return onVanilla(sender, label, args);
-		if(!(main.getWhitelist().contains(label.toLowerCase()) || !main.check.canRun(blockpos))) return false;
+		if(!(checker.isPlotWorld(blockpos.getWorld())))return onVanilla(sender, label, args);
+		if(!main.getWhitelist().contains(label.toLowerCase()) || !checker.canRun(blockpos)) return false;
 		
     	try{
     		Commands commandType = Commands.valueOf(label.toUpperCase());
@@ -180,8 +196,19 @@ public class CommandManager implements CommandExecutor{
     							args = new String[]{args[0], args[1], args[2], tmp, args[3]};
     						else
     							args = new String[]{args[0], args[1], args[2], tmp};
+    					
+    					}else if(commandType.ordinal() == Commands.SPREADPLAYERS.ordinal()){
+    						if(i <= 2) 
+    							try{
+    								if(Integer.parseInt(args[commandType.getIndex(i)]) > 256) 
+    									invalidArgs.add(commandType.getIndex(i) + "");
+	    						}catch(NumberFormatException nfe){
+									invalidArgs.add(commandType.getIndex(i) + "");
+	    						}
     					}
     					break;
+    					
+    					
 					case MOB:
 						String[] blacklistedMobs = {"PrimedTnt", "Endermite", "Silverfish", "Ghast", "Enderman", "Blaze", "WitherBoss", "EnderDragon", "FallingSand", "ShulkerBullet"};
 						String requested = args[commandType.getIndex(i)];
@@ -195,7 +222,7 @@ public class CommandManager implements CommandExecutor{
 						Player player = getPlayer(args[commandType.getIndex(i)]);
 						artifacts.add(player);
 						if(player == null) invalidArgs.add(commandType.getIndex(i)+ "");
-						if(!main.check.isSamePlot(blockpos, player.getLocation())) invalidArgs.add(commandType.getIndex(i)+ "");
+						if(!checker.isSamePlot(blockpos, player.getLocation())) invalidArgs.add(commandType.getIndex(i)+ "");
 						break;
 						
 						
@@ -205,7 +232,7 @@ public class CommandManager implements CommandExecutor{
  						Entity e  = uuidSet.get(args[commandType.getIndex(i)]);
  						artifacts.add(e);
 						if(e == null) invalidArgs.add(commandType.getIndex(i)+ "");
-						if(!main.check.isSamePlot(blockpos, e.getLocation())) invalidArgs.add(commandType.getIndex(i)+ "");
+						if(!checker.isSamePlot(blockpos, e.getLocation())) invalidArgs.add(commandType.getIndex(i)+ "");
 						break;
 						
 						
@@ -214,10 +241,10 @@ public class CommandManager implements CommandExecutor{
 						indeY = indeZ -1,
 						indeX = indeY -1;
 						
-						isLocation nLoc = getLocation(blockpos, args[indeX], args[indeY], args[indeZ]);
+						IsLocation nLoc = new IsLocation(blockpos, args[indeX], args[indeY], args[indeZ]);
 						artifacts.add(nLoc);
 						
-						if(!main.check.isSamePlot(blockpos, nLoc)) 
+						if(!checker.isSamePlot(blockpos, nLoc)) 
 							invalidArgs.add(indeX + "");
 						
 						if(commandType.ordinal() == Commands.CLONE.ordinal()){
@@ -231,12 +258,15 @@ public class CommandManager implements CommandExecutor{
 						indeY = indeZ -1;
 						indeX = indeY -1;
 						
-						nLoc = getLocation(blockpos, args[indeX], args[indeY], args[indeZ]);
+						if(commandType.ordinal() == Commands.SPREADPLAYERS.ordinal()){
+							nLoc = new IsLocation(blockpos, args[indeX], "64", args[indeY]);
+						}else nLoc = new IsLocation(blockpos, args[indeX], args[indeY], args[indeZ]);
+						
 						artifacts.add(nLoc);
 						
 						if(commandType.ordinal() == Commands.CLONE.ordinal()){
-							if(	!main.check.isSamePlot(blockpos, nLoc) ||
-								!main.check.isSamePlot(nLoc, nLoc.add(prev.getX(), prev.getY(), prev.getZ())))
+							if(	!checker.isSamePlot(blockpos, nLoc) ||
+								!checker.isSamePlot(nLoc, nLoc.add(prev.getX(), prev.getY(), prev.getZ())))
 									invalidArgs.add(indeX + "");
 	
 						}else if(commandType.ordinal() == Commands.PARTICLE.ordinal()){
@@ -248,19 +278,19 @@ public class CommandManager implements CommandExecutor{
 						
 						
 					case COMMAND:
-						
-						if(((isLocation) artifacts.get(1)).isRelative){
-							if(isCart) sender = new ExecuteSender(((isLocation) artifacts.get(1)).clone());
+						IsLocation artLoc = (IsLocation) artifacts.get(1);
+						if(artLoc.isRelative){
+							if(isCart) sender = new ExecuteSender(artLoc.clone());
 						}
 						String detect = args[commandType.getIndex(i)];
 						if(detect.equalsIgnoreCase("detect")){
 							String full = Arrays.toString(args);
 							detect = full.substring(full.indexOf("/"), args.length);
 						}
-						System.out.println("Execute next: " + detect);
-						//Commands newCommand = Commands.valueOf(detect);
-						//return onCommand(sender, newCommand.id, label, args);
-						break;
+						Command newCommand = main.getCommand(detect);
+						if(	!main.getWhitelist().contains(newCommand.getLabel().toLowerCase()) ||
+							!checker.canRun(artLoc.clone())) return false;
+						return execute(sender, detect, Java15Compat.Arrays_copyOfRange(args, 5, args.length));
 						
 						
 					case MAX1:
@@ -297,6 +327,11 @@ public class CommandManager implements CommandExecutor{
 	
 	public boolean onVanilla(CommandSender sender, String label, String... args)
 	{
+		if(label.equalsIgnoreCase(Commands.RECEIVE.name()) || label.equalsIgnoreCase(Commands.TRANSMIT.name())){
+    		CustomCommand command = (CustomCommand) Commands.valueOf(label.toUpperCase()).id;
+    		command.onCommand(sender, main.getCommand(label), label, args);
+		}
+		
     	try{
     		Commands commandType = Commands.valueOf(label.toUpperCase());
     		VanillaCommandWrapper wrap = new VanillaCommandWrapper(commandType.id);
@@ -315,30 +350,6 @@ public class CommandManager implements CommandExecutor{
 		return null;
 	}
 	
-	public isLocation getLocation(Location blockpos, String x, String y, String z){
-		double worldX = 0, worldY = 0, worldZ = 0;
-		boolean isRelative = false;
-		if(x.contains("~")){
-			x = x.replace("~", "");
-			worldX += blockpos.getX();
-			isRelative = true;
-		}
-		if(y.contains("~")){
-			y = y.replace("~", "");
-			worldY += blockpos.getY();
-			isRelative = true;
-		}
-		if(z.contains("~")){
-			z = z.replace("~", "");
-			worldZ += blockpos.getZ();
-			isRelative = true;
-		}
-		if(!x.isEmpty())worldX += Double.parseDouble(x);
-		if(!y.isEmpty())worldY += Double.parseDouble(y);
-		if(!z.isEmpty())worldZ += Double.parseDouble(z);
-		return new isLocation(blockpos.getWorld(), worldX, worldY, worldZ, isRelative);
-	}
-	
 	private Map<UUID, Entity> getUUIDset(Entity... es){
 		Map<UUID, Entity> res = new HashMap<>();
 		for(Entity e : es){
@@ -346,23 +357,4 @@ public class CommandManager implements CommandExecutor{
 		}
 		return res;
 	}
-	
-	private class isLocation extends Location{
-
-		public boolean isRelative;
-		
-		public isLocation(World world, double x, double y, double z, boolean isRelative) {
-			super(world, x, y, z);
-			this.isRelative = isRelative;
-		}
-		
-		public isLocation(Location loc, boolean isRelative) {
-			super(loc.getWorld(), loc.getX(), loc.getY(), loc.getZ());
-			this.isRelative = isRelative;
-		}
-		
-		
-	}
-	
-	
 }

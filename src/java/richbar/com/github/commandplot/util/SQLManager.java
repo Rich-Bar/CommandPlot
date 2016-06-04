@@ -19,6 +19,7 @@ public class SQLManager {
 	public SQLManager(Plugin plugin, String host, String schema, String user, String password) {
 		logger = plugin.getLogger();
 		sqlHost = host;
+    	sqlHost = sqlHost.charAt(sqlHost.length() -1) == '/'? sqlHost : sqlHost + "/";
 		sqlSchema = schema;
 		sqlUser = user;
 		sqlPassword = password;

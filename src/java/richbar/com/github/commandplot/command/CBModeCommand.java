@@ -21,14 +21,15 @@ public class CBModeCommand implements CommandExecutor{
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if(sender instanceof Player){
 			Player p = (Player) sender;
-			if(label.equalsIgnoreCase("commandblockmode")){
+			if(command.getName().equalsIgnoreCase("commandblockmode")){
 				if(args.length > 0){
-					if(args[0].equalsIgnoreCase("true")) return disableMode(p);
-					return enableMode(p);
+					if(args[0].trim().equalsIgnoreCase("true")) return enableMode(p);
+					return disableMode(p);
 				}else
 					if(cbMode.isActive(p.getUniqueId())) return disableMode(p);
 					return enableMode(p);
-			}else if(label.equalsIgnoreCase("commandblock")){
+			}
+			if(command.getName().equalsIgnoreCase("commandblock")){
 				p.getInventory().addItem(new ItemStack(Material.COMMAND, 1));
 			}
 		}
@@ -37,11 +38,13 @@ public class CBModeCommand implements CommandExecutor{
 
 	private boolean enableMode(Player p){
 		p.setOp(true);
+		p.sendMessage("You've entered the 'Commanblock Mode', be aware that you cannot run any commands while in this mode!");
 		return cbMode.addPlayer(p.getUniqueId());
 	}
 	
 	private boolean disableMode(Player p){
 		p.setOp(false);
+		p.sendMessage("You've left the 'Commanblock Mode', you can run commands again now!");
 		return cbMode.removePlayer(p.getUniqueId());
 	}
 

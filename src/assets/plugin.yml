@@ -1,87 +1,34 @@
 name: CommandPlot
-description: Fixes Commandblocks for PlotSquared
+description: Fixes Commandblocks for PlotSquared [PRE ALPHA!]
 author: richbar
 
 main: richbar.com.github.commandplot.CPlugin
 
 depend: [PlotSquared]
 
-version: 1.0.0
+version: 0.4.0
+#        ALPHA
+
 commands:
   commandblock:
-    description: Gives you a commandblock.
     permission: plots.commandblock
+    aliases: cb
+    description: Gives you a commandblock.
     permission-message: "You are lacking the permission node 'plots.commandblock'"
-  receive:
-    permission: plots.commandblock.receive
-    permission-message: "You are lacking the permission node 'plots.commandblock.receive'"
+  commandblockmode:
+    permission: plots.commandblock.changemode
+    aliases: cbm
+    description: Allows you to edit Commandblocks.
+    permission-message: "You are lacking the permission node 'plots.commandblock.changemode'"
   transmit:
     permission: plots.commandblock.transmit
+    description: Commandblock Command...
     permission-message: "You are lacking the permission node 'plots.commandblock.transmit'"
-  say:
-    permission: plots.commandblock.vanilla
-    permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
-  kill:
-    permission: plots.commandblock.vanilla
-    permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
-  testfor:
-    permission: plots.commandblock.vanilla
-    permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
-  tell:
-    permission: plots.commandblock.vanilla
-    permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
-  tellraw:
-    permission: plots.commandblock.vanilla
-    permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
-  effect:
-    permission: plots.commandblock.vanilla
-    permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
-  enchant:
-    permission: plots.commandblock.vanilla
-    permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
-  gamemode:
-    permission: plots.commandblock.vanilla
-    permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
-  give:
-    permission: plots.commandblock.vanilla
-    permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
-  xp:
-    permission: plots.commandblock.vanilla
-    permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
-  tppos:
-    permission: plots.commandblock.vanilla
-    permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
-  tp:
-    permission: plots.commandblock.vanilla
-    permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
-  setblock:
-    permission: plots.commandblock.vanilla
-    permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
-  blockdata:
-    permission: plots.commandblock.vanilla
-    permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
-  fill:
-    permission: plots.commandblock.vanilla
-    permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
-  clone:
-    permission: plots.commandblock.vanilla
-    permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
-  summon:
-    permission: plots.commandblock.vanilla
-    permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
-  particle:
-    permission: plots.commandblock.vanilla
-    permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
-  playsound:
-    permission: plots.commandblock.vanilla
-    permission-message: "You are lacking the permission node 'plots.commandblock.vanilla'"
     
 permissions:
   plots.commandblock:
     default: true
-  plots.commandblock.vanilla:
-    default: true
-  plots.commandblock.receive:
+  plots.commandblock.changemode:
     default: true
   plots.commandblock.transmit:
-    default: true
+    default: false
