@@ -5,23 +5,21 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 
 import com.intellectualcrafters.plot.PS;
 import com.intellectualcrafters.plot.object.Plot;
 import com.intellectualcrafters.plot.object.PlotPlayer;
 
 public class PlotSquaredChecker extends PlotChecker<PS>{
-
-	private PS api;
 	
 	public PlotSquaredChecker(PS ps) {
 		super(ps);
-		this.api = ps;
 	}
 	
 	public boolean canRun(Location loc){
 		boolean someOneAlive = false;
-		for(UUID idPlayer : getPlot(loc).getOwners()){
+		for(UUID idPlayer : getPlot(loc).getMembers()){
 			PlotPlayer p = PlotPlayer.wrap(idPlayer);
 			Location playerLoc = toBukkitLoc(p.getLocation());
 			if(isSamePlot(loc, playerLoc)) 
@@ -38,7 +36,7 @@ public class PlotSquaredChecker extends PlotChecker<PS>{
 		return new com.intellectualcrafters.plot.object.Location(loc.getWorld().getName(), loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
 	}
 	
-	private Plot getPlot(Location loc){
+	public Plot getPlot(Location loc){
 		return api.getPlotAreaAbs(toPSLoc(loc)).getPlot(toPSLoc(loc));
 	}
 	
@@ -57,6 +55,11 @@ public class PlotSquaredChecker extends PlotChecker<PS>{
 	@Override
 	public boolean isPlotWorld(World world) {
 		return api.hasPlotArea(world.getName());
+	}
+
+	@Override
+	public boolean isInPlot(Player p) {
+		return api.getPlots(p.getWorld().getName(), PlotPlayer.wrap(p.getUniqueId())).contains(getPlot(p.getLocation()));
 	}
 	
 }

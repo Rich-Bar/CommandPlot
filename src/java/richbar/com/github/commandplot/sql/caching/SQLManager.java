@@ -1,12 +1,10 @@
-package richbar.com.github.commandplot.util;
+package richbar.com.github.commandplot.sql.caching;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
 
 import org.bukkit.plugin.Plugin;
@@ -37,7 +35,7 @@ public class SQLManager {
 		}
 	}
 	
-    public boolean mysqlquery(String query){ 
+    public boolean mysqlexecution(String query){ 
     	query = query.replace("%SCHEMA%", sqlSchema);
     	try{
     		Connection conn = DriverManager.getConnection(sqlHost + sqlSchema, sqlUser, sqlPassword);
@@ -52,21 +50,17 @@ public class SQLManager {
 		}
     }
 
-    public List<String> mysqlqueryUUID(String query){ 
+    public ResultSet mysqlquery(String query){ 
     	query = query.replace("%SCHEMA%", sqlSchema);
     	try{
     		Connection conn = DriverManager.getConnection(sqlHost + sqlSchema, sqlUser, sqlPassword);
             PreparedStatement sampleQueryStatement = conn.prepareStatement(query); 
             ResultSet set = sampleQueryStatement.executeQuery();
-            List<String> result = new ArrayList<>();
-            while(set.next()) {
-            	result.add(set.getString("UUID"));
-            }
             conn.close();
-            return result;
+            return set;
     	}catch (SQLException e) {
     		logger.warning("Could not execute SQL query! [" + query + "]");
-    		return new ArrayList<String>();
+    		return null;
 		}
     }
 }

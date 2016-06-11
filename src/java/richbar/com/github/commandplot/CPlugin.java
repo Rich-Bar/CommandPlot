@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -14,19 +15,20 @@ import richbar.com.github.commandplot.CommandManager.Commands;
 import richbar.com.github.commandplot.api.PlotChecker;
 import richbar.com.github.commandplot.api.PlotSquaredChecker;
 import richbar.com.github.commandplot.command.CBModeCommand;
-import richbar.com.github.commandplot.command.CustomCommand;
 import richbar.com.github.commandplot.command.pipeline.*;
+import richbar.com.github.commandplot.sql.PlayerSQLWrapper;
+import richbar.com.github.commandplot.sql.caching.SQLManager;
 import richbar.com.github.commandplot.util.CustomConfig;
-import richbar.com.github.commandplot.util.SQLManager;
-import richbar.com.github.commandplot.util.SQLWrapper;
 
 public class CPlugin extends JavaPlugin{
 
 	public SQLManager sqlMan;
 	public PlotChecker<?> check;
+	public FileConfiguration messages;
 	private CustomConfig config;
     public CommandManager cmdMan;
     private CommandAccessor cmdAcc;
+    private MapChanger map;
     protected CommandBlockMode cbMode;
     
     private List<String> whitelist = new ArrayList<>();
@@ -42,7 +44,8 @@ public class CPlugin extends JavaPlugin{
             return;
         }else
         check = new PlotSquaredChecker(PS.get());
-        
+
+        messages = new CustomConfig(this, "messages.yml").getConfig();
         config = new CustomConfig(this, "config.yml");
         String host = config.getConfig().getString("connection.host");
         String schema = config.getConfig().getString("connection.schema");
@@ -54,10 +57,10 @@ public class CPlugin extends JavaPlugin{
         	return;
         }
         	
-        sqlMan.mysqlquery(SQLWrapper.getCreateCommandModeTable());
+        sqlMan.mysqlexecution(new PlayerSQLWrapper().getCreateTable());
         
         cbMode = new CommandBlockMode(sqlMan);
-        cmdAcc = new CommandAccessor(cbMode);
+        cmdAcc = new CommandAccessor(this, cbMode);
         manager.registerEvents(cmdAcc, this);
         
         for(Commands command : Commands.values()){
@@ -66,7 +69,9 @@ public class CPlugin extends JavaPlugin{
         
         getCommand("commandblockmode").setExecutor(new CBModeCommand(cbMode));
         getCommand("commandblock").setExecutor(new CBModeCommand(cbMode));
-        getCommand("transmit").setExecutor((CustomCommand) Commands.TRANSMIT.id);
+        //getCommand("transmit").setExecutor((CustomCommand) Commands.TRANSMIT.id);
+        //getCommand("receive").setExecutor((CustomCommand) Commands.TRANSMIT.id);
+        //getCommand("alwaysActive").setExecutor((CustomCommand) Commands.TRANSMIT.id);
         
         
         /*
@@ -86,7 +91,7 @@ public class CPlugin extends JavaPlugin{
 					getLogger().info("This is the free Version!");
 					getLogger().info("Commandblocks may run anything...");
 				}
-				MapChanger map = new MapChanger(CPlugin.getPlugin(CPlugin.class));
+				map = new MapChanger(getPlugin(CPlugin.class));
 			    try {
 					map.registerMiddleExecutor();
 				} catch (NoSuchFieldException | SecurityException
@@ -103,8 +108,12 @@ public class CPlugin extends JavaPlugin{
 		return whitelist;
 	}
 	
+	
+	
 	@Override
-	public void onDisable() {
-		super.onDisable();
+	public void onDisable(){
+		try{
+			map.undo();
+		}catch(Exception e1){}
 	}
 }

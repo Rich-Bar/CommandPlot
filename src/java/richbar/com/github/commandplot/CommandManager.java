@@ -52,9 +52,10 @@ import richbar.com.github.commandplot.command.CommandReceive;
 import richbar.com.github.commandplot.command.CommandTransmit;
 import richbar.com.github.commandplot.command.CustomCommand;
 import richbar.com.github.commandplot.command.ExecuteSender;
+import richbar.com.github.commandplot.command.pipeline.SimpleCommandManager;
 import richbar.com.github.commandplot.util.IsLocation;
 
-public class CommandManager extends Command{
+public class CommandManager extends SimpleCommandManager{
 	public enum Commands{
 
 		BLOCKDATA(new CommandBlockData(),elemType.COORDS, elemType.REST),
@@ -141,13 +142,9 @@ public class CommandManager extends Command{
 	CPlugin main;
 	PlotChecker<?> checker;
 	public CommandManager(CPlugin cPlugin, Command c) {
-		super(c.getName(), c.getDescription(), c.getUsage(), c.getAliases());
+		super(c);
 		main = cPlugin;
 		checker = main.check;
-	}
-
-	public CommandManager(CPlugin cPlugin, CommandAbstract inst) {
-		super(inst.getCommand());
 	}
 
 	@Override
@@ -164,6 +161,8 @@ public class CommandManager extends Command{
         }else if(sender instanceof ExecuteSender) {
             // Execute
             blockpos = ((ExecuteSender) sender).getLocation();
+        }else if(sender instanceof Player) {
+            blockpos = ((Player) sender).getLocation();
         }else{
         	return onVanilla(sender, label, args);
         }
@@ -174,12 +173,14 @@ public class CommandManager extends Command{
 		
     	try{
     		Commands commandType = Commands.valueOf(label.toUpperCase());
-    		elemType[] elements = commandType.getElements();
     		
     		if(commandType.ordinal() == Commands.REPLACEITEM.ordinal() && ! args[1].toLowerCase().contains("slot")) 
     			commandType = Commands.REPLACEITEMCOORD;
         	if(commandType.ordinal() == Commands.TP.ordinal() && args.length > 2)
         		commandType = Commands.TPCOORD; 
+    		
+    		elemType[] elements = commandType.getElements();
+    		
     		
     		Location prev = null;
     		List<Object> artifacts = new ArrayList<>();
@@ -222,26 +223,37 @@ public class CommandManager extends Command{
 						Player player = getPlayer(args[commandType.getIndex(i)]);
 						artifacts.add(player);
 						if(player == null) invalidArgs.add(commandType.getIndex(i)+ "");
-						if(!checker.isSamePlot(blockpos, player.getLocation())) invalidArgs.add(commandType.getIndex(i)+ "");
+						else if(!checker.isSamePlot(blockpos, player.getLocation())) invalidArgs.add(commandType.getIndex(i)+ "");
 						break;
 						
 						
 					case ENTITYorCOORD:
 					case ENTITY:
-						Map<UUID, Entity> uuidSet = getUUIDset((Entity[]) blockpos.getWorld().getEntities().toArray());
- 						Entity e  = uuidSet.get(args[commandType.getIndex(i)]);
+						Map<UUID, Object> uuidSet = getUUIDset(blockpos.getWorld().getEntities().toArray());
+ 						Object e  = uuidSet.get(args[commandType.getIndex(i)]);
+						if(e == null){
+							e = getPlayer(args[commandType.getIndex(i)]);
+							if(e == null){
+								invalidArgs.add(commandType.getIndex(i)+ "");
+								break;
+							}
+						}
+ 						Location loca = e instanceof Entity? ((Entity) e).getLocation(): ((Player) e).getLocation();
  						artifacts.add(e);
-						if(e == null) invalidArgs.add(commandType.getIndex(i)+ "");
-						if(!checker.isSamePlot(blockpos, e.getLocation())) invalidArgs.add(commandType.getIndex(i)+ "");
+						if(!checker.isSamePlot(blockpos, loca)) invalidArgs.add(commandType.getIndex(i)+ "");
 						break;
 						
 						
 					case COORDS:
-						int indeZ = commandType.getIndex(i+1) -1, 
-						indeY = indeZ -1,
-						indeX = indeY -1;
+						int indeX = commandType.getIndex(i), 
+						indeY = indeX +1,
+						indeZ = indeY +1;
 						
-						IsLocation nLoc = new IsLocation(blockpos, args[indeX], args[indeY], args[indeZ]);
+						IsLocation nLoc;
+						if(commandType.ordinal() == Commands.TPCOORD.ordinal())
+							nLoc = new IsLocation(((Player) artifacts.get(0)).getLocation(), args[indeX], args[indeY], args[indeZ]);
+						else
+							nLoc = new IsLocation(blockpos, args[indeX], args[indeY], args[indeZ]);
 						artifacts.add(nLoc);
 						
 						if(!checker.isSamePlot(blockpos, nLoc)) 
@@ -254,9 +266,9 @@ public class CommandManager extends Command{
 						
 						
 					case DCOORDS:
-						indeZ = commandType.getIndex(i+1) -1;
-						indeY = indeZ -1;
-						indeX = indeY -1;
+						indeX = commandType.getIndex(i);
+						indeY = indeX +1;
+						indeZ = indeY +1;
 						
 						if(commandType.ordinal() == Commands.SPREADPLAYERS.ordinal()){
 							nLoc = new IsLocation(blockpos, args[indeX], "64", args[indeY]);
@@ -314,12 +326,12 @@ public class CommandManager extends Command{
     			i++;
     		}
     		if(invalidArgs.size() == 0) return onVanilla(sender, label, args);
-    		sender.sendMessage("Command Execution failed! The following args are the reason:");
+    		sender.sendMessage(main.messages.getString("execution-failed"));
     		for(String f : invalidArgs) sender.sendMessage(f + ": " + args[Integer.parseInt(f)]);
     		return false;
     	}catch(IllegalArgumentException|NullPointerException exc){
     		Logger logger = main.getLogger();
-    		logger.info("Command Execution failed! Exception:");
+    		logger.info(main.messages.getString("execution-exception"));
     		exc.printStackTrace();
     		return false;
     	}
@@ -342,18 +354,14 @@ public class CommandManager extends Command{
 	}
 
 	public Player getPlayer(String name){
-		List<Player> matches = null;
-		try {
-		    matches = main.getServer().matchPlayer(name);
-		} catch (Exception e) {}
-		if(matches != null) return matches.get(0);
-		return null;
+		return main.getServer().getPlayer(name);
 	}
 	
-	private Map<UUID, Entity> getUUIDset(Entity... es){
-		Map<UUID, Entity> res = new HashMap<>();
-		for(Entity e : es){
-			res.put(e.getUniqueId(), e);
+	private Map<UUID, Object> getUUIDset(Object... es){
+		Map<UUID, Object> res = new HashMap<>();
+		for(Object e : es){
+			if(e instanceof Entity)res.put(((Entity) e).getUniqueId(), e);
+			else if(e instanceof Player)res.put(((Player) e).getUniqueId(), e);
 		}
 		return res;
 	}

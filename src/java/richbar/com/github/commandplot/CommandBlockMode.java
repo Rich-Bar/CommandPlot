@@ -1,51 +1,47 @@
 package richbar.com.github.commandplot;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
-import richbar.com.github.commandplot.util.SQLManager;
-import richbar.com.github.commandplot.util.SQLWrapper;
+import richbar.com.github.commandplot.sql.PlayerSQLWrapper;
+import richbar.com.github.commandplot.sql.caching.SQLCache;
+import richbar.com.github.commandplot.sql.caching.SQLManager;
+import richbar.com.github.commandplot.sql.caching.SQLObject;
 
-public class CommandBlockMode {
-
-	private List<UUID> activePlayers;
-	private SQLManager sqlMan;
+public class CommandBlockMode extends SQLCache<UUID>{
 	
 	public CommandBlockMode(SQLManager sqlMan) {
-		activePlayers = new ArrayList<>();
-		this.sqlMan = sqlMan;
-		loadFromDB();
+		super(sqlMan, new PlayerSQLWrapper(), UUIDSQL.class);
 	}
 	
 	public boolean removePlayer(UUID pID){
-		if(remPlayer(pID)) return activePlayers.remove(pID);
-		return false;
-	}
-	
-	private boolean remPlayer(UUID pID){
-		List<String> res = sqlMan.mysqlqueryUUID(SQLWrapper.getPlayer(pID));
-		if(res == null) return true;
-		if(sqlMan.mysqlquery(SQLWrapper.getRemovePlayer(pID)))return true;
-		System.out.println("WARNING, could not remove Player[" + pID + "] from CommandMode Table!");
-		return false;
+		return remove(new UUIDSQL(pID));
 	}
 	
 	public boolean addPlayer(UUID pID){
-		activePlayers.add(pID);
-		return sqlMan.mysqlquery(SQLWrapper.getAddPlayer(pID));
+		return addObject(new UUIDSQL(pID));
 	}
 	
 	public boolean isActive(UUID pID){
-		return activePlayers.contains(pID);
+		return contains(new UUIDSQL(pID));
 	}
 	
-	public void loadFromDB(){
-		List<String> allPlayers = sqlMan.mysqlqueryUUID(SQLWrapper.getAllPlayers());
-		if(allPlayers.isEmpty()) return;
-		for(String uid : allPlayers){
-			UUID uuid = UUID.fromString(uid);
-			if(!activePlayers.contains(uuid)) activePlayers.add(uuid);
+	@SuppressWarnings("serial")
+	public class UUIDSQL extends SQLObject<UUID>{
+
+		public UUIDSQL(UUID uuid) {
+			object = uuid;
 		}
+		
+		@Override
+		public String toString() {
+			return object.toString();
+		}
+
+		@Override
+		public UUID fromString(String serialized) {
+			object = UUID.fromString(serialized);
+			return object;
+		}
+		
 	}
 }

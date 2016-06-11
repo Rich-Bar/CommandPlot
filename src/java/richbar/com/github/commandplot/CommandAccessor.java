@@ -14,9 +14,11 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 public class CommandAccessor implements Listener {
 
 	private CommandBlockMode cbMode;
+	private CPlugin main;
 	
-	public CommandAccessor(CommandBlockMode cbMode) {
+	public CommandAccessor(CPlugin main, CommandBlockMode cbMode) {
 		this.cbMode = cbMode;
+		this.main = main;
 	}
 	
 	List<String> whitelist = Arrays.asList(new String[]{"commandblockmode", "cbm", "commandblock", "cb"});
@@ -29,7 +31,7 @@ public class CommandAccessor implements Listener {
 		if(whitelist.contains(cmd.toLowerCase())) return;
 		if((cmd.equalsIgnoreCase("gm") || cmd.equalsIgnoreCase("gamemode")) && args.length < 2) return;
 		if(cbMode.isActive(p.getUniqueId())){
-			p.sendMessage("Sorry! You can't run commands while in Commandblock Mode...");
+			p.sendMessage(main.messages.getString("cbm-command-fail"));
 			e.setCancelled(true);
 		}
 	}
@@ -37,7 +39,7 @@ public class CommandAccessor implements Listener {
 	@EventHandler
 	public void onWorldSwitch(PlayerChangedWorldEvent e) throws SQLException{
 		Player p = e.getPlayer();
-		p.sendMessage("Commandblock Mode auto-disabled!");
+		p.sendMessage(main.messages.getString("cbm-auto-disable"));
 		cbMode.removePlayer(p.getUniqueId());
 		p.setOp(false);
 	}
@@ -45,7 +47,7 @@ public class CommandAccessor implements Listener {
 	@EventHandler
 	public void onRespawn(PlayerRespawnEvent e){
 		Player p = e.getPlayer();
-		p.sendMessage("Commandblock Mode auto-disabled!");
+		p.sendMessage(main.messages.getString("cbm-auto-disable"));
 		cbMode.removePlayer(p.getUniqueId());
 		p.setOp(false);
 	}	
