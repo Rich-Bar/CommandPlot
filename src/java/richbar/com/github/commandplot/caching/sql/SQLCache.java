@@ -1,12 +1,15 @@
-package richbar.com.github.commandplot.sql.caching;
+package richbar.com.github.commandplot.caching.sql;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-public class SQLCache<T> {
+import richbar.com.github.commandplot.caching.CacheBackend;
+import richbar.com.github.commandplot.caching.CacheObject;
 
-	private List<SQLObject<T>> cached;
+public class SQLCache<T> implements CacheBackend<T>{
+
+	private List<CacheObject<T>> cached;
 	
 	SQLManager sqlMan;
 	SQLWrapper sqlWrap;
@@ -17,19 +20,15 @@ public class SQLCache<T> {
 		this.sqlWrap = sqlWrap;
 		this.SQLObjRef = SQLObjRef;
 		
-		try {
-			loadFromDB();
-		} catch (InstantiationException | IllegalAccessException | SQLException e) {
-			e.printStackTrace();
-		}
+		loadFromBackend();
 	}
 	
-	public boolean remove(SQLObject<T> elem){
+	public boolean remove(CacheObject<T> elem){
 		if(remSQL(elem)) return cached.remove(elem);
 		return false;
 	}
 	
-	private boolean remSQL(SQLObject<T> elem){
+	private boolean remSQL(CacheObject<T> elem){
 		ResultSet res = sqlMan.mysqlquery(sqlWrap.getObject(elem));
 		if(res == null) return true;
 		if(sqlMan.mysqlexecution(sqlWrap.getRemoveObject(elem)))return true;
@@ -37,23 +36,25 @@ public class SQLCache<T> {
 		return false;
 	}
 	
-	public boolean addObject(SQLObject<T> elem){
+	public boolean addObject(CacheObject<T> elem){
 		cached.add(elem);
 		return sqlMan.mysqlexecution(sqlWrap.getAddObject(elem));
 	}
 	
-	public boolean contains(SQLObject<T> elem){
+	public boolean contains(CacheObject<T> elem){
 		return cached.contains(elem);
 	}
 	
-	public void loadFromDB() throws InstantiationException, IllegalAccessException, SQLException{
+	public void loadFromBackend(){
 		ResultSet allObjects = sqlMan.mysqlquery(sqlWrap.getAllObjects());
 		if(allObjects == null) return;
-		while(allObjects.next()){
-			@SuppressWarnings("unchecked")
-			SQLObject<T> sqlObj = ((SQLObject<T>)SQLObjRef.newInstance());
-			sqlObj.fromString(allObjects.getString(sqlWrap.getTypeName()));
-			cached.add(sqlObj);
-		}
+		try {
+			while(allObjects.next()){
+				@SuppressWarnings("unchecked")
+				CacheObject<T> sqlObj = ((CacheObject<T>)SQLObjRef.newInstance());
+				sqlObj.fromString(allObjects.getString(sqlWrap.getTypeName()));
+				cached.add(sqlObj);
+			}
+		} catch (InstantiationException | IllegalAccessException | SQLException e) {}
 	}
 }

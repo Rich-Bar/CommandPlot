@@ -1,6 +1,4 @@
-package richbar.com.github.commandplot.sql;
-
-import richbar.com.github.commandplot.sql.caching.SQLWrapper;
+package richbar.com.github.commandplot.caching.sql;
 
 public class PlayerSQLWrapper extends SQLWrapper{
 

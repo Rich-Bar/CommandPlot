@@ -1,47 +1,44 @@
 package richbar.com.github.commandplot;
 
+import java.io.File;
 import java.util.UUID;
 
-import richbar.com.github.commandplot.sql.PlayerSQLWrapper;
-import richbar.com.github.commandplot.sql.caching.SQLCache;
-import richbar.com.github.commandplot.sql.caching.SQLManager;
-import richbar.com.github.commandplot.sql.caching.SQLObject;
+import richbar.com.github.commandplot.caching.BackendType;
+import richbar.com.github.commandplot.caching.CacheBackend;
+import richbar.com.github.commandplot.caching.CacheObject;
+import richbar.com.github.commandplot.caching.io.FileCache;
+import richbar.com.github.commandplot.caching.objects.UUIDObject;
+import richbar.com.github.commandplot.caching.sql.PlayerSQLWrapper;
+import richbar.com.github.commandplot.caching.sql.SQLCache;
 
-public class CommandBlockMode extends SQLCache<UUID>{
+public class CommandBlockMode implements CacheBackend<UUID>{
 	
-	public CommandBlockMode(SQLManager sqlMan) {
-		super(sqlMan, new PlayerSQLWrapper(), UUIDSQL.class);
-	}
+	private CacheBackend<UUID> backend;
 	
-	public boolean removePlayer(UUID pID){
-		return remove(new UUIDSQL(pID));
-	}
-	
-	public boolean addPlayer(UUID pID){
-		return addObject(new UUIDSQL(pID));
-	}
-	
-	public boolean isActive(UUID pID){
-		return contains(new UUIDSQL(pID));
-	}
-	
-	@SuppressWarnings("serial")
-	public class UUIDSQL extends SQLObject<UUID>{
-
-		public UUIDSQL(UUID uuid) {
-			object = uuid;
-		}
+	public CommandBlockMode(CPlugin main, BackendType type) {
+		if(type.equals(BackendType.FILE)) backend = new FileCache<UUID>(new File(main.getDataFolder().toString() + "/CommandBlockMode.db"), "cbm");
+		else backend = new SQLCache<UUID>(main.sqlMan, new PlayerSQLWrapper(), UUIDObject.class);
 		
-		@Override
-		public String toString() {
-			return object.toString();
-		}
+		loadFromBackend();
+	}
 
-		@Override
-		public UUID fromString(String serialized) {
-			object = UUID.fromString(serialized);
-			return object;
-		}
-		
+	@Override
+	public boolean remove(CacheObject<UUID> elem) {
+		return backend.remove(elem);
+	}
+
+	@Override
+	public boolean addObject(CacheObject<UUID> elem) {
+		return backend.addObject(elem);
+	}
+
+	@Override
+	public boolean contains(CacheObject<UUID> elem) {
+		return backend.contains(elem);
+	}
+
+	@Override
+	public void loadFromBackend() {
+		backend.loadFromBackend();
 	}
 }

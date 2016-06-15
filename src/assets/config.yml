@@ -1,3 +1,13 @@
+#   __   __          __      ___
+#  |    |  |  |\ |  |_   |  | __
+#  |__  |__|  | \|  |    |  |__|
+
+#Change method of caching [either sql or file]
+backends:
+  commandblockmode: sql
+  activeplots: file
+
+#If you use sql, add your credentials here...
 connection: 
   host: jdbc:mysql://localhost:3306/
   schema: database

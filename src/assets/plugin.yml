@@ -1,12 +1,12 @@
 name: CommandPlot
-description: Fixes Commandblocks for PlotSquared [PRE ALPHA!]
+description: Fixes Commandblocks for PlotSquared [ALPHA!]
 author: richbar
 
 main: richbar.com.github.commandplot.CPlugin
 
 depend: [PlotSquared]
 
-version: 0.4.1
+version: 0.4.5
 #        ALPHA
 
 commands:
@@ -24,6 +24,10 @@ commands:
     permission: plots.commandblock.transmit
     description: Commandblock Command...
     permission-message: "You are lacking the permission node 'plots.commandblock.transmit'"
+  receive:
+    permission: plots.commandblock.receive
+    description: Commandblock Command...
+    permission-message: "You are lacking the permission node 'plots.commandblock.receive'"
     
 permissions:
   plots.commandblock:
@@ -31,4 +35,6 @@ permissions:
   plots.commandblock.changemode:
     default: true
   plots.commandblock.transmit:
+    default: false
+  plots.commandblock.receive:
     default: false

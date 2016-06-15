@@ -1,4 +1,4 @@
-package richbar.com.github.commandplot.sql.caching;
+package richbar.com.github.commandplot.caching.sql;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

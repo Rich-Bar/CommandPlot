@@ -1,0 +1,10 @@
+﻿debug: true
+
+execution-failed: Command Execution failed! The following args are the reason:
+execution-exception: Command Execution failed! Exception:
+
+cbm-auto-disable: Commandblock Mode auto-disabled!
+cbm-command-fail: Sorry! You can't run commands while in Commandblock Mode...
+
+always-active-on: You've enabled always-active mode for this plot!
+always-active-off: You've disabled always-active mode for this plot!

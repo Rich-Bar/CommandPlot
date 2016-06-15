@@ -11,6 +11,8 @@ import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
+import richbar.com.github.commandplot.caching.objects.UUIDObject;
+
 public class CommandAccessor implements Listener {
 
 	private CommandBlockMode cbMode;
@@ -30,7 +32,7 @@ public class CommandAccessor implements Listener {
 		String cmd = args[0];
 		if(whitelist.contains(cmd.toLowerCase())) return;
 		if((cmd.equalsIgnoreCase("gm") || cmd.equalsIgnoreCase("gamemode")) && args.length < 2) return;
-		if(cbMode.isActive(p.getUniqueId())){
+		if(cbMode.contains(new UUIDObject(p.getUniqueId()))){
 			p.sendMessage(main.messages.getString("cbm-command-fail"));
 			e.setCancelled(true);
 		}
@@ -40,7 +42,7 @@ public class CommandAccessor implements Listener {
 	public void onWorldSwitch(PlayerChangedWorldEvent e) throws SQLException{
 		Player p = e.getPlayer();
 		p.sendMessage(main.messages.getString("cbm-auto-disable"));
-		cbMode.removePlayer(p.getUniqueId());
+		cbMode.remove(new UUIDObject(p.getUniqueId()));
 		p.setOp(false);
 	}
 	
@@ -48,7 +50,7 @@ public class CommandAccessor implements Listener {
 	public void onRespawn(PlayerRespawnEvent e){
 		Player p = e.getPlayer();
 		p.sendMessage(main.messages.getString("cbm-auto-disable"));
-		cbMode.removePlayer(p.getUniqueId());
+		cbMode.remove(new UUIDObject(p.getUniqueId()));
 		p.setOp(false);
 	}	
 }
