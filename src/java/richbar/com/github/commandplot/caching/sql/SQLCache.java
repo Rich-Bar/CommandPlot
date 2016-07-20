@@ -2,6 +2,7 @@ package richbar.com.github.commandplot.caching.sql;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import richbar.com.github.commandplot.caching.CacheBackend;
@@ -9,7 +10,7 @@ import richbar.com.github.commandplot.caching.CacheObject;
 
 public class SQLCache<T> implements CacheBackend<T>{
 
-	private List<CacheObject<T>> cached;
+	private List<CacheObject<T>> cached = new ArrayList<>();
 	
 	SQLManager sqlMan;
 	SQLWrapper sqlWrap;

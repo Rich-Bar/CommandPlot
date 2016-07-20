@@ -6,7 +6,7 @@ main: richbar.com.github.commandplot.CPlugin
 
 depend: [PlotSquared]
 
-version: 0.4.5
+version: 0.5.0
 #        ALPHA
 
 commands:
@@ -20,21 +20,15 @@ commands:
     aliases: cbm
     description: Allows you to edit Commandblocks.
     permission-message: "You are lacking the permission node 'plots.commandblock.changemode'"
-  transmit:
-    permission: plots.commandblock.transmit
-    description: Commandblock Command...
-    permission-message: "You are lacking the permission node 'plots.commandblock.transmit'"
-  receive:
-    permission: plots.commandblock.receive
-    description: Commandblock Command...
-    permission-message: "You are lacking the permission node 'plots.commandblock.receive'"
+  commandplot:
+    permission: plots.commandblock.admin
+    description: Admin options for CommandPlot
+    permission-message: "You are lacking the permission node 'plots.commandblock.admin'"
     
 permissions:
   plots.commandblock:
     default: true
   plots.commandblock.changemode:
     default: true
-  plots.commandblock.transmit:
-    default: false
-  plots.commandblock.receive:
+  plots.commandblock.admin:
     default: false

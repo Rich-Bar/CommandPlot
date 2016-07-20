@@ -2,12 +2,16 @@
 #  |    |  |  |\ |  |_   |  | __
 #  |__  |__|  | \|  |    |  |__|
 
-#Change method of caching [either sql or file]
+# Change method of caching [either sql or file]
 backends:
   commandblockmode: sql
   activeplots: file
 
-#If you use sql, add your credentials here...
+# This will limit how many commands can be executed per tick per plot.
+limits:
+  maxExecutions: 200
+  
+# If you use sql, add your credentials here...
 connection: 
   host: jdbc:mysql://localhost:3306/
   schema: database
@@ -15,9 +19,9 @@ connection:
   password: password
   
 #
-# Permissions 
+# Permissions :
 # To allow players to access certain commands themselves
-# add the corresponding minecraft.command.<command> permission
+# add the corresponding minecraft.command.<command> permission.
 #
 # - > http://wiki.bukkit.org/CraftBukkit_Commands
 #

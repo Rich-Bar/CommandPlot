@@ -4,11 +4,13 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
 import richbar.com.github.commandplot.caching.objects.UUIDObject;
@@ -36,6 +38,13 @@ public class CommandAccessor implements Listener {
 			p.sendMessage(main.messages.getString("cbm-command-fail"));
 			e.setCancelled(true);
 		}
+	}
+	
+	@EventHandler
+	private void onInteract(PlayerInteractEvent e) {
+		if(e.getClickedBlock() != null)
+		if(e.getClickedBlock().getType() == Material.COMMAND)
+			if(!main.check.isInPlot(e.getPlayer()))e.setCancelled(true);
 	}
 	
 	@EventHandler

@@ -7,14 +7,18 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import richbar.com.github.commandplot.CPlugin;
 import richbar.com.github.commandplot.CommandBlockMode;
 import richbar.com.github.commandplot.caching.objects.UUIDObject;
 
 public class CBModeCommand implements CommandExecutor{
 
 	CommandBlockMode cbMode;
+	private CPlugin main;
 	
-	public CBModeCommand(CommandBlockMode cbMode) {
+	
+	public CBModeCommand(CPlugin main, CommandBlockMode cbMode) {
+		this.main = main;
 		this.cbMode = cbMode;
 	}
 	
@@ -39,13 +43,13 @@ public class CBModeCommand implements CommandExecutor{
 
 	private boolean enableMode(Player p){
 		p.setOp(true);
-		p.sendMessage("You've entered the 'Commanblock Mode', be aware that you cannot run any commands while in this mode!");
+		p.sendMessage(main.messages.getString("cbm-enter"));
 		return cbMode.addObject(new UUIDObject(p.getUniqueId()));
 	}
 	
 	private boolean disableMode(Player p){
 		p.setOp(false);
-		p.sendMessage("You've left the 'Commanblock Mode', you can run commands again now!");
+		p.sendMessage(main.messages.getString("cbm-leave"));
 		return cbMode.remove(new UUIDObject(p.getUniqueId()));
 	}
 

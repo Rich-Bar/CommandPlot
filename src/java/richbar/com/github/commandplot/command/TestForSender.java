@@ -1,8 +1,9 @@
 package richbar.com.github.commandplot.command;
 
+import java.util.Arrays;
 import java.util.Set;
+import java.util.logging.Logger;
 
-import org.bukkit.Location;
 import org.bukkit.Server;
 import org.bukkit.command.CommandSender;
 import org.bukkit.permissions.Permission;
@@ -10,13 +11,31 @@ import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.plugin.Plugin;
 
-public class ExecuteSender implements CommandSender{
+public class TestForSender implements CommandSender{
 
 	private CommandSender sender;
-	private Location location;
-	public ExecuteSender(CommandSender origSender, Location loc) {
-		location = loc;
+	private boolean success = false;
+	
+	public TestForSender(CommandSender origSender) {
 		sender = origSender;
+	}
+
+	@Override
+	public void sendMessage(String paramString) {
+		Logger.getGlobal().info("TestforMessage: " + paramString);
+		success = paramString == "commands.compare.success";
+		sender.sendMessage(paramString);
+	}
+
+	@Override
+	public void sendMessage(String[] paramArrayOfString) {
+		Logger.getGlobal().info("TestforMessage: " + paramArrayOfString.toString());
+		success = Arrays.asList(paramArrayOfString).contains("commands.compare.success");
+		sender.sendMessage(paramArrayOfString);
+	}
+	
+	public boolean isSuccess(){
+		return success;
 	}
 	
 	@Override
@@ -97,20 +116,6 @@ public class ExecuteSender implements CommandSender{
 	@Override
 	public String getName() {
 		return sender.getName();
-	}
-
-	@Override
-	public void sendMessage(String paramString) {
-		sender.sendMessage(paramString);
-	}
-
-	@Override
-	public void sendMessage(String[] paramArrayOfString) {
-		sender.sendMessage(paramArrayOfString);
-	}
-
-	public Location getLocation() {
-		return location;
 	}
 
 }

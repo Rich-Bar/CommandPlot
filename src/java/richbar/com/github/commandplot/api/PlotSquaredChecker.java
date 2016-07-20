@@ -1,5 +1,6 @@
 package richbar.com.github.commandplot.api;
 
+import java.util.Collection;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -19,7 +20,9 @@ public class PlotSquaredChecker extends PlotChecker<PS>{
 	
 	public boolean canRun(Location loc){
 		boolean someOneAlive = false;
-		for(UUID idPlayer : getPlot(loc).getMembers()){
+		Collection<UUID> someone = getPlot(loc).getMembers();
+		someone.addAll(getPlot(loc).getOwners());
+		for(UUID idPlayer : someone){
 			PlotPlayer p = PlotPlayer.wrap(idPlayer);
 			Location playerLoc = toBukkitLoc(p.getLocation());
 			if(isSamePlot(loc, playerLoc)) 

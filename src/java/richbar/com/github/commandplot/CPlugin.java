@@ -1,6 +1,7 @@
 package richbar.com.github.commandplot;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.Bukkit;
@@ -18,6 +19,7 @@ import richbar.com.github.commandplot.caching.BackendType;
 import richbar.com.github.commandplot.caching.sql.PlayerSQLWrapper;
 import richbar.com.github.commandplot.caching.sql.SQLManager;
 import richbar.com.github.commandplot.command.CBModeCommand;
+import richbar.com.github.commandplot.command.CommandPlotCommand;
 import richbar.com.github.commandplot.command.pipeline.*;
 import richbar.com.github.commandplot.util.CustomConfig;
 
@@ -25,18 +27,22 @@ public class CPlugin extends JavaPlugin{
 
 	public SQLManager sqlMan;
 	public PlotChecker<?> check;
-	public FileConfiguration messages;
-	private CustomConfig config;
     public CommandManager cmdMan;
-    private CommandAccessor cmdAcc;
+	public ActivePlots activePlots;
+	public ExecutionLimiter limiter;
+	public FileConfiguration messages;
+	
     private MapChanger map;
+	private CustomConfig config;
+    private CommandAccessor cmdAcc;
+    private List<String> whitelist = new ArrayList<>();
+    
     protected CommandBlockMode cbMode;
     
-    private List<String> whitelist = new ArrayList<>();
 
+	@SuppressWarnings("deprecation")
 	@Override
     public void onEnable() {
-		
         PluginManager manager = Bukkit.getServer().getPluginManager();
         
         final Plugin plotsquared = manager.getPlugin("PlotSquared");
@@ -48,31 +54,38 @@ public class CPlugin extends JavaPlugin{
 
         messages = new CustomConfig(this, "messages.yml").getConfig();
         config = new CustomConfig(this, "config.yml");
-        String host = config.getConfig().getString("connection.host");
-        String schema = config.getConfig().getString("connection.schema");
-        String user = config.getConfig().getString("connection.username");
-        String password = config.getConfig().getString("connection.password");
-        sqlMan = new SQLManager(this, host, schema, user, password);
-        if(!sqlMan.isWorking()){
-        	manager.disablePlugin(this);
-        	return;
+        
+        List<String> backends = Arrays.asList(new String[]{
+        		config.getConfig().getString("backends.commandblockmode").toLowerCase(), 
+        		config.getConfig().getString("backends.activeplots").toLowerCase()});
+        
+        if(backends.contains("sql")){
+	        String host = config.getConfig().getString("connection.host");
+	        String schema = config.getConfig().getString("connection.schema");
+	        String user = config.getConfig().getString("connection.username");
+	        String password = config.getConfig().getString("connection.password");
+	        sqlMan = new SQLManager(this, host, schema, user, password);
+	        if(!sqlMan.isWorking()){
+	        	manager.disablePlugin(this);
+	        	return;
+	        }
+	        sqlMan.mysqlexecution(new PlayerSQLWrapper().getCreateTable());
         }
         	
-        sqlMan.mysqlexecution(new PlayerSQLWrapper().getCreateTable());
         
-        cbMode = new CommandBlockMode(this, BackendType.SQL);
+        cbMode = new CommandBlockMode(this, BackendType.valueOf(backends.get(0).toUpperCase()));
+        activePlots = new ActivePlots(this, BackendType.valueOf(backends.get(1).toUpperCase()));
         cmdAcc = new CommandAccessor(this, cbMode);
         manager.registerEvents(cmdAcc, this);
         
         for(Commands command : Commands.values()){
 	        whitelist.add(command.id.getCommand().toLowerCase());
 	    }
+        whitelist.add("reload");
         
-        getCommand("commandblockmode").setExecutor(new CBModeCommand(cbMode));
-        getCommand("commandblock").setExecutor(new CBModeCommand(cbMode));
-        //getCommand("transmit").setExecutor((CustomCommand) Commands.TRANSMIT.id);
-        //getCommand("receive").setExecutor((CustomCommand) Commands.TRANSMIT.id);
-        //getCommand("alwaysActive").setExecutor((CustomCommand) Commands.TRANSMIT.id);
+        getCommand("commandblockmode").setExecutor(new CBModeCommand(this, cbMode));
+        getCommand("commandblock").setExecutor(new CBModeCommand(this, cbMode));
+        getCommand("commandplot").setExecutor(new CommandPlotCommand(this));
         
         
         /*
@@ -103,6 +116,9 @@ public class CPlugin extends JavaPlugin{
 				}
 			}
 		}, 100L); 	
+        
+        limiter = new ExecutionLimiter(this);
+        getServer().getScheduler().scheduleAsyncRepeatingTask(this, limiter, 0, 1);
     }
 
 	public List<String> getWhitelist(){

@@ -25,5 +25,4 @@ public class SimpleCommandManager extends Command{
 		else 
 			return next.execute(sender, label, args);
 	}
-
 }

@@ -17,41 +17,43 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.minecart.CommandMinecart;
 import org.bukkit.util.Java15Compat;
 
-import org.bukkit.craftbukkit.v1_9_R1.command.VanillaCommandWrapper;
-import net.minecraft.server.v1_9_R1.CommandAbstract;
-import net.minecraft.server.v1_9_R1.CommandBlockData;
-import net.minecraft.server.v1_9_R1.CommandClear;
-import net.minecraft.server.v1_9_R1.CommandClone;
-import net.minecraft.server.v1_9_R1.CommandEffect;
-import net.minecraft.server.v1_9_R1.CommandEnchant;
-import net.minecraft.server.v1_9_R1.CommandEntityData;
-import net.minecraft.server.v1_9_R1.CommandExecute;
-import net.minecraft.server.v1_9_R1.CommandFill;
-import net.minecraft.server.v1_9_R1.CommandGamemode;
-import net.minecraft.server.v1_9_R1.CommandGive;
-import net.minecraft.server.v1_9_R1.CommandKill;
-import net.minecraft.server.v1_9_R1.CommandParticle;
-import net.minecraft.server.v1_9_R1.CommandPlaySound;
-import net.minecraft.server.v1_9_R1.CommandReplaceItem;
-import net.minecraft.server.v1_9_R1.CommandSay;
-import net.minecraft.server.v1_9_R1.CommandSetBlock;
-import net.minecraft.server.v1_9_R1.CommandSpreadPlayers;
-import net.minecraft.server.v1_9_R1.CommandSummon;
-import net.minecraft.server.v1_9_R1.CommandTell;
-import net.minecraft.server.v1_9_R1.CommandTellRaw;
-import net.minecraft.server.v1_9_R1.CommandTestFor;
-import net.minecraft.server.v1_9_R1.CommandTestForBlock;
-import net.minecraft.server.v1_9_R1.CommandTestForBlocks;
-import net.minecraft.server.v1_9_R1.CommandTitle;
-import net.minecraft.server.v1_9_R1.CommandTp;
-import net.minecraft.server.v1_9_R1.CommandTrigger;
-import net.minecraft.server.v1_9_R1.CommandXp;
+import com.intellectualcrafters.plot.object.Plot;
+import com.intellectualcrafters.plot.object.PlotId;
+
+import org.bukkit.craftbukkit.v1_10_R1.command.VanillaCommandWrapper;
+import net.minecraft.server.v1_10_R1.CommandAbstract;
+import net.minecraft.server.v1_10_R1.CommandBlockData;
+import net.minecraft.server.v1_10_R1.CommandClear;
+import net.minecraft.server.v1_10_R1.CommandClone;
+import net.minecraft.server.v1_10_R1.CommandEffect;
+import net.minecraft.server.v1_10_R1.CommandEnchant;
+import net.minecraft.server.v1_10_R1.CommandEntityData;
+import net.minecraft.server.v1_10_R1.CommandExecute;
+import net.minecraft.server.v1_10_R1.CommandFill;
+import net.minecraft.server.v1_10_R1.CommandGamemode;
+import net.minecraft.server.v1_10_R1.CommandGive;
+import net.minecraft.server.v1_10_R1.CommandKill;
+import net.minecraft.server.v1_10_R1.CommandParticle;
+import net.minecraft.server.v1_10_R1.CommandPlaySound;
+import net.minecraft.server.v1_10_R1.CommandReplaceItem;
+import net.minecraft.server.v1_10_R1.CommandSay;
+import net.minecraft.server.v1_10_R1.CommandSetBlock;
+import net.minecraft.server.v1_10_R1.CommandSpreadPlayers;
+import net.minecraft.server.v1_10_R1.CommandStopSound;
+import net.minecraft.server.v1_10_R1.CommandSummon;
+import net.minecraft.server.v1_10_R1.CommandTell;
+import net.minecraft.server.v1_10_R1.CommandTellRaw;
+import net.minecraft.server.v1_10_R1.CommandTestFor;
+import net.minecraft.server.v1_10_R1.CommandTestForBlock;
+import net.minecraft.server.v1_10_R1.CommandTestForBlocks;
+import net.minecraft.server.v1_10_R1.CommandTitle;
+import net.minecraft.server.v1_10_R1.CommandTp;
+import net.minecraft.server.v1_10_R1.CommandXp;
 
 import richbar.com.github.commandplot.api.PlotChecker;
-import richbar.com.github.commandplot.command.CommandReceive;
-import richbar.com.github.commandplot.command.CommandTransmit;
-import richbar.com.github.commandplot.command.CustomCommand;
+import richbar.com.github.commandplot.caching.objects.PlotObject;
 import richbar.com.github.commandplot.command.ExecuteSender;
+import richbar.com.github.commandplot.command.TestForSender;
 import richbar.com.github.commandplot.command.pipeline.SimpleCommandManager;
 import richbar.com.github.commandplot.util.IsLocation;
 
@@ -71,16 +73,16 @@ public class CommandManager extends SimpleCommandManager{
 		KILL	(new CommandKill(), elemType.ENTITY),
 		PARTICLE(new CommandParticle(), elemType.ARG, elemType.COORDS, elemType.DCOORDS, elemType.REST),
 		PLAYSOUND(new CommandPlaySound(),elemType.ARG, elemType.ARG, elemType.PLAYER, elemType.COORDS, elemType.MAX2, elemType.MAX2, elemType.MAX1),
-		RECEIVE	(new CommandReceive(), elemType.REST),
-		REPLACEITEM(new CommandReplaceItem(), elemType.ARG, elemType.ENTITYorCOORD, elemType.REST),
+		REPLACEITEM(new CommandReplaceItem(), elemType.ENTITYorCOORD, elemType.REST),
 		REPLACEITEMCOORD(new CommandReplaceItem(), elemType.ARG, elemType.COORDS, elemType.REST),
 		SAY		(new CommandSay(), elemType.REST),
 		
-		//SCOREBOARD(new CommandScoreboard(), elemType.REST), //TODO: Implement Scoremoard
+		//SCOREBOARD(new CommandScoreboard(), elemType.REST), //TODO: Implement Scoreboard
 		//STATS(...),
 		
 		SETBLOCK(new CommandSetBlock(), elemType.COORDS, elemType.REST),
-		SPREADPLAYERS(new CommandSpreadPlayers(), elemType.DCOORDS, elemType.ARG, elemType.ARG, elemType.ARG, elemType.ENTITY, elemType.REST),
+		SPREADPLAYERS(new CommandSpreadPlayers(), elemType.DCOORDS, elemType.REST),
+		STOPSOUND(new CommandStopSound(), elemType.PLAYER, elemType.REST),
 		SUMMON	(new CommandSummon(), elemType.MOB, elemType.COORDS, elemType.REST),
 		TELL	(new CommandTell(), elemType.PLAYER, elemType.REST),
 		TELLRAW	(new CommandTellRaw(), elemType.PLAYER, elemType.REST),
@@ -90,8 +92,9 @@ public class CommandManager extends SimpleCommandManager{
 		TITLE	(new CommandTitle(), elemType.PLAYER, elemType.REST),
 		TP		(new CommandTp(), elemType.PLAYER, elemType.ENTITYorCOORD),
 		TPCOORD	(new CommandTp(), elemType.PLAYER, elemType.COORDS),
-		TRANSMIT(new CommandTransmit(), elemType.REST),
-		TRIGGER(new CommandTrigger(), elemType.REST),
+		
+		//TRIGGER (new CommandTrigger(), elemType.REST),
+		
 		XP		(new CommandXp(), elemType.ARG, elemType.PLAYER);
 		
 		CommandAbstract id;
@@ -150,14 +153,12 @@ public class CommandManager extends SimpleCommandManager{
 	@Override
     public boolean execute(CommandSender sender, String label, String[] args) {
         Location blockpos = new Location(main.getServer().getWorlds().get(0), 0, 0, 0, 0, 0);
-        boolean isCart = false;
 		if(sender instanceof BlockCommandSender) {
             // Commandblock executed command
 			blockpos = ((BlockCommandSender) sender).getBlock().getLocation();
         }else if(sender instanceof CommandMinecart) {
             // Minecart Commandlock executed command
         	blockpos = ((CommandMinecart) sender).getLocation();
-        	isCart = true;
         }else if(sender instanceof ExecuteSender) {
             // Execute
             blockpos = ((ExecuteSender) sender).getLocation();
@@ -169,7 +170,18 @@ public class CommandManager extends SimpleCommandManager{
 		
 		
 		if(!(checker.isPlotWorld(blockpos.getWorld())))return onVanilla(sender, label, args);
-		if(!main.getWhitelist().contains(label.toLowerCase()) || !checker.canRun(blockpos)) return false;
+		if(!main.getWhitelist().contains(label.toLowerCase()) || ((Plot)checker.getPlot(blockpos)) == null) return false;
+		PlotId pId = ((Plot)checker.getPlot(blockpos)).getId();
+		
+		if(!(checker.canRun(blockpos) || main.activePlots.contains(new PlotObject(pId)))){
+			sender.sendMessage("no Plotmember in plot nor always active!");
+			return false;
+		}
+		
+		if(!main.limiter.check(pId)){
+			sender.sendMessage("too many executions!");
+			return false;
+		}
 		
     	try{
     		Commands commandType = Commands.valueOf(label.toUpperCase());
@@ -290,16 +302,26 @@ public class CommandManager extends SimpleCommandManager{
 						
 						
 					case COMMAND:
-						IsLocation artLoc = (IsLocation) artifacts.get(1);
-						if(artLoc.isRelative){
-							if(isCart) sender = new ExecuteSender(artLoc.clone());
-						}
 						String detect = args[commandType.getIndex(i)];
 						if(detect.equalsIgnoreCase("detect")){
 							String full = Arrays.toString(args);
 							detect = full.substring(full.indexOf("/"), args.length);
 						}
+						
+						IsLocation artLoc = (IsLocation) artifacts.get(1);
 						Command newCommand = main.getCommand(detect);
+						
+						if(newCommand == null){
+							invalidArgs.add(detect);
+							return false;
+						}
+						if(artLoc == null){
+							invalidArgs.add("Invalid Location");
+							return false;
+						}
+						
+						sender = new ExecuteSender(sender, artLoc.clone());
+						
 						if(	!main.getWhitelist().contains(newCommand.getLabel().toLowerCase()) ||
 							!checker.canRun(artLoc.clone())) return false;
 						return execute(sender, detect, Java15Compat.Arrays_copyOfRange(args, 5, args.length));
@@ -316,7 +338,7 @@ public class CommandManager extends SimpleCommandManager{
 						
 					case MAX2:
 						double dm2 = Double.parseDouble(args[commandType.getIndex(i)]);
-						if(dm2 > 1.00) dm2 = 1.00;
+						if(dm2 > 2.00) dm2 = 2.00;
 						else if(dm2 < 0.00) dm2 = 0.00;
 						args[commandType.getIndex(i)] = dm2 +"";
 						artifacts.add(dm2);
@@ -325,7 +347,19 @@ public class CommandManager extends SimpleCommandManager{
 				}
     			i++;
     		}
-    		if(invalidArgs.size() == 0) return onVanilla(sender, label, args);
+    		if(invalidArgs.size() == 0){
+    			main.limiter.add(pId);
+    			if( commandType == Commands.TESTFOR || 
+    				commandType ==  Commands.TESTFORBLOCK || 
+    				commandType ==  Commands.TESTFORBLOCKS){
+	    				
+    					TestForSender checkSender = new TestForSender(sender);
+	    				onVanilla(checkSender, label, args);
+	    				return checkSender.isSuccess();
+    			
+    			}else 	return onVanilla(sender, label, args);
+    		}
+    		
     		sender.sendMessage(main.messages.getString("execution-failed"));
     		for(String f : invalidArgs) sender.sendMessage(f + ": " + args[Integer.parseInt(f)]);
     		return false;
@@ -338,12 +372,7 @@ public class CommandManager extends SimpleCommandManager{
     }
 	
 	public boolean onVanilla(CommandSender sender, String label, String... args)
-	{
-		if(label.equalsIgnoreCase(Commands.RECEIVE.name()) || label.equalsIgnoreCase(Commands.TRANSMIT.name())){
-    		CustomCommand command = (CustomCommand) Commands.valueOf(label.toUpperCase()).id;
-    		command.onCommand(sender, main.getCommand(label), label, args);
-		}
-		
+	{		
     	try{
     		Commands commandType = Commands.valueOf(label.toUpperCase());
     		VanillaCommandWrapper wrap = new VanillaCommandWrapper(commandType.id);
