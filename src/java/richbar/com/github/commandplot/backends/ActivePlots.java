@@ -1,15 +1,18 @@
-package richbar.com.github.commandplot;
+package richbar.com.github.commandplot.backends;
 
 import java.io.File;
+import java.util.Arrays;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import com.intellectualcrafters.plot.flag.Flags;
 import com.intellectualcrafters.plot.object.Plot;
 import com.intellectualcrafters.plot.object.PlotId;
 
+import richbar.com.github.commandplot.CPlugin;
 import richbar.com.github.commandplot.caching.BackendType;
 import richbar.com.github.commandplot.caching.UndefinedBackend;
 import richbar.com.github.commandplot.caching.io.FileCache;
@@ -42,7 +45,14 @@ public class ActivePlots extends UndefinedBackend<PlotId> implements CommandExec
 		 if(args.length <= 1) changeTo = !contains(psql);
 		 else if(args[1] == "true") changeTo = true;
 		
-		if(changeTo) return addObject(psql);
-		else return remove(psql);
+		if(changeTo){
+			Plot plot = ((Plot)main.check.getPlot(p.getLocation()));
+			plot.setOwner(null);
+			plot.setFlag(Flags.BLOCKED_CMDS, Arrays.asList(new String[]{"plots", "p", "plot", "ps", "plotsquared", "p2", "2"}));
+			return addObject(psql);
+		}
+		else{
+			return remove(psql);
+		}
 	}
 }

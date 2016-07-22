@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import richbar.com.github.commandplot.CPlugin;
-import richbar.com.github.commandplot.CommandBlockMode;
+import richbar.com.github.commandplot.backends.CommandBlockMode;
 import richbar.com.github.commandplot.caching.objects.UUIDObject;
 
 public class CBModeCommand implements CommandExecutor{

@@ -15,12 +15,15 @@ import com.intellectualcrafters.plot.PS;
 import richbar.com.github.commandplot.CommandManager.Commands;
 import richbar.com.github.commandplot.api.PlotChecker;
 import richbar.com.github.commandplot.api.PlotSquaredChecker;
+import richbar.com.github.commandplot.backends.ActivePlots;
+import richbar.com.github.commandplot.backends.CommandBlockMode;
 import richbar.com.github.commandplot.caching.BackendType;
 import richbar.com.github.commandplot.caching.sql.PlayerSQLWrapper;
 import richbar.com.github.commandplot.caching.sql.SQLManager;
 import richbar.com.github.commandplot.command.CBModeCommand;
 import richbar.com.github.commandplot.command.CommandPlotCommand;
 import richbar.com.github.commandplot.command.pipeline.*;
+import richbar.com.github.commandplot.listener.CommandAccessor;
 import richbar.com.github.commandplot.util.CustomConfig;
 
 public class CPlugin extends JavaPlugin{

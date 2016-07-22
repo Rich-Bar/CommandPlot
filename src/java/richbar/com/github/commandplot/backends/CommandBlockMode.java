@@ -1,8 +1,9 @@
-package richbar.com.github.commandplot;
+package richbar.com.github.commandplot.backends;
 
 import java.io.File;
 import java.util.UUID;
 
+import richbar.com.github.commandplot.CPlugin;
 import richbar.com.github.commandplot.caching.BackendType;
 import richbar.com.github.commandplot.caching.UndefinedBackend;
 import richbar.com.github.commandplot.caching.io.FileCache;

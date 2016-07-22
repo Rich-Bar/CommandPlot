@@ -6,7 +6,7 @@ main: richbar.com.github.commandplot.CPlugin
 
 depend: [PlotSquared]
 
-version: 0.5.0
+version: 0.6.0
 #        ALPHA
 
 commands:

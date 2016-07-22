@@ -15,7 +15,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.minecart.CommandMinecart;
-import org.bukkit.util.Java15Compat;
 
 import com.intellectualcrafters.plot.object.Plot;
 import com.intellectualcrafters.plot.object.PlotId;
@@ -73,7 +72,7 @@ public class CommandManager extends SimpleCommandManager{
 		KILL	(new CommandKill(), elemType.ENTITY),
 		PARTICLE(new CommandParticle(), elemType.ARG, elemType.COORDS, elemType.DCOORDS, elemType.REST),
 		PLAYSOUND(new CommandPlaySound(),elemType.ARG, elemType.ARG, elemType.PLAYER, elemType.COORDS, elemType.MAX2, elemType.MAX2, elemType.MAX1),
-		REPLACEITEM(new CommandReplaceItem(), elemType.ENTITYorCOORD, elemType.REST),
+		REPLACEITEM(new CommandReplaceItem(), elemType.ARG, elemType.ENTITYorCOORD, elemType.REST),
 		REPLACEITEMCOORD(new CommandReplaceItem(), elemType.ARG, elemType.COORDS, elemType.REST),
 		SAY		(new CommandSay(), elemType.REST),
 		
@@ -168,6 +167,8 @@ public class CommandManager extends SimpleCommandManager{
         	return onVanilla(sender, label, args);
         }
 		
+		Logger.getGlobal().warning(label + Arrays.toString(args));
+		
 		
 		if(!(checker.isPlotWorld(blockpos.getWorld())))return onVanilla(sender, label, args);
 		if(!main.getWhitelist().contains(label.toLowerCase()) || ((Plot)checker.getPlot(blockpos)) == null) return false;
@@ -186,7 +187,7 @@ public class CommandManager extends SimpleCommandManager{
     	try{
     		Commands commandType = Commands.valueOf(label.toUpperCase());
     		
-    		if(commandType.ordinal() == Commands.REPLACEITEM.ordinal() && ! args[1].toLowerCase().contains("slot")) 
+    		if(commandType.ordinal() == Commands.REPLACEITEM.ordinal() && args[0].equalsIgnoreCase("block")) 
     			commandType = Commands.REPLACEITEMCOORD;
         	if(commandType.ordinal() == Commands.TP.ordinal() && args.length > 2)
         		commandType = Commands.TPCOORD; 
@@ -238,7 +239,6 @@ public class CommandManager extends SimpleCommandManager{
 						else if(!checker.isSamePlot(blockpos, player.getLocation())) invalidArgs.add(commandType.getIndex(i)+ "");
 						break;
 						
-						
 					case ENTITYorCOORD:
 					case ENTITY:
 						Map<UUID, Object> uuidSet = getUUIDset(blockpos.getWorld().getEntities().toArray());
@@ -284,7 +284,12 @@ public class CommandManager extends SimpleCommandManager{
 						
 						if(commandType.ordinal() == Commands.SPREADPLAYERS.ordinal()){
 							nLoc = new IsLocation(blockpos, args[indeX], "64", args[indeY]);
+						}else if(commandType.ordinal() == Commands.EXECUTE.ordinal()){
+							Player p = (Player) artifacts.get(0);
+							if(p != null)nLoc = new IsLocation(p.getLocation(), args[indeX], args[indeY], args[indeZ]);
+							else break;
 						}else nLoc = new IsLocation(blockpos, args[indeX], args[indeY], args[indeZ]);
+							
 						
 						artifacts.add(nLoc);
 						
@@ -303,13 +308,15 @@ public class CommandManager extends SimpleCommandManager{
 						
 					case COMMAND:
 						String detect = args[commandType.getIndex(i)];
+						boolean hasDetect = false;
 						if(detect.equalsIgnoreCase("detect")){
-							String full = Arrays.toString(args);
-							detect = full.substring(full.indexOf("/"), args.length);
+							//TODO: Detect
+							hasDetect = true;
 						}
 						
 						IsLocation artLoc = (IsLocation) artifacts.get(1);
-						Command newCommand = main.getCommand(detect);
+						if(args.length < 10) hasDetect = false;
+						Command newCommand = main.getCommand(args[hasDetect? 10 : 4]);
 						
 						if(newCommand == null){
 							invalidArgs.add(detect);
@@ -324,7 +331,7 @@ public class CommandManager extends SimpleCommandManager{
 						
 						if(	!main.getWhitelist().contains(newCommand.getLabel().toLowerCase()) ||
 							!checker.canRun(artLoc.clone())) return false;
-						return execute(sender, detect, Java15Compat.Arrays_copyOfRange(args, 5, args.length));
+						return execute(sender, detect, Arrays.copyOfRange(args, 5, args.length));
 						
 						
 					case MAX1:
@@ -349,9 +356,9 @@ public class CommandManager extends SimpleCommandManager{
     		}
     		if(invalidArgs.size() == 0){
     			main.limiter.add(pId);
-    			if( commandType == Commands.TESTFOR || 
-    				commandType ==  Commands.TESTFORBLOCK || 
-    				commandType ==  Commands.TESTFORBLOCKS){
+    			if( commandType.ordinal() == Commands.TESTFOR.ordinal() || 
+    				commandType.ordinal() ==  Commands.TESTFORBLOCK.ordinal() || 
+    				commandType.ordinal() ==  Commands.TESTFORBLOCKS.ordinal()){
 	    				
     					TestForSender checkSender = new TestForSender(sender);
 	    				onVanilla(checkSender, label, args);

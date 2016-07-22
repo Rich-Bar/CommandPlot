@@ -1,4 +1,4 @@
-package richbar.com.github.commandplot;
+package richbar.com.github.commandplot.listener;
 
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -13,6 +13,8 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
+import richbar.com.github.commandplot.CPlugin;
+import richbar.com.github.commandplot.backends.CommandBlockMode;
 import richbar.com.github.commandplot.caching.objects.UUIDObject;
 
 public class CommandAccessor implements Listener {
