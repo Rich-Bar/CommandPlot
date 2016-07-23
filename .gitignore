@@ -10,3 +10,4 @@ bin/
 *.class
 src/java/richbar/com/github/commandplot/command/pipeline/MapChanger.java
 src/java/richbar/com/github/commandplot/command/pipeline/MidExecutor.java
+src/java/richbar/com/github/commandplot/scoreboard/visible/

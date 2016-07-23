@@ -11,7 +11,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 public class BranchingCommand implements CommandExecutor{
 
-	Map<String, CommandExecutor> subExecutors = new HashMap<>(); 
+	protected Map<String, CommandExecutor> subExecutors = new HashMap<>(); 
 	FileConfiguration messages;
 	
 	public BranchingCommand(FileConfiguration messages) {

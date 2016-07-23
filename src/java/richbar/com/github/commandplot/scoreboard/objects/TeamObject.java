@@ -1,4 +1,4 @@
-package richbar.com.github.commandplot.scoreboard;
+package richbar.com.github.commandplot.scoreboard.objects;
 
 import com.intellectualcrafters.plot.object.PlotId;
 

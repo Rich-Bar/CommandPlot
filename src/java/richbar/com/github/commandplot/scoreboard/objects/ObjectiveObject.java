@@ -1,4 +1,4 @@
-package richbar.com.github.commandplot.scoreboard;
+package richbar.com.github.commandplot.scoreboard.objects;
 
 import com.intellectualcrafters.plot.object.PlotId;
 
@@ -8,8 +8,9 @@ import richbar.com.github.commandplot.caching.CacheObject;
 public class ObjectiveObject extends CacheObject<ObjectiveObject> {
 
 	PlotId id;
-	String name, displayName;
-	CriteriaObject criteria;
+	public String name;
+	public String displayName;
+	public CriteriaObject criteria;
 	
 	@Override
 	public String toString() {

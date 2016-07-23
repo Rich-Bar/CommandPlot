@@ -1,4 +1,4 @@
-package richbar.com.github.commandplot.command;
+package richbar.com.github.commandplot.scoreboard;
 
 import java.util.Arrays;
 import java.util.List;
@@ -6,6 +6,8 @@ import java.util.List;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
+
+import richbar.com.github.commandplot.command.BranchingCommand;
 
 public class ScoreboardFix extends BranchingCommand{
 
