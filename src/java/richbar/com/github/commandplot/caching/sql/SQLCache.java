@@ -10,11 +10,11 @@ import richbar.com.github.commandplot.caching.CacheObject;
 
 public class SQLCache<T> implements CacheBackend<T>{
 
-	private List<CacheObject<T>> cached = new ArrayList<>();
+	protected List<CacheObject<T>> cached = new ArrayList<>();
 	
-	SQLManager sqlMan;
-	SQLWrapper sqlWrap;
-	Class<?> SQLObjRef;
+	protected SQLManager sqlMan;
+	protected SQLWrapper sqlWrap;
+	protected Class<?> SQLObjRef;
 	
 	public SQLCache(SQLManager sqlMan, SQLWrapper sqlWrap, Class<?> SQLObjRef) {
 		this.sqlMan = sqlMan;
@@ -29,7 +29,7 @@ public class SQLCache<T> implements CacheBackend<T>{
 		return false;
 	}
 	
-	private boolean remSQL(CacheObject<T> elem){
+	protected boolean remSQL(CacheObject<T> elem){
 		ResultSet res = sqlMan.mysqlquery(sqlWrap.getObject(elem));
 		if(res == null) return true;
 		if(sqlMan.mysqlexecution(sqlWrap.getRemoveObject(elem)))return true;

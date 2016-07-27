@@ -7,21 +7,42 @@ import richbar.com.github.commandplot.caching.CacheObject;
 @SuppressWarnings("serial")
 public class ObjectiveObject extends CacheObject<ObjectiveObject> {
 
-	PlotId id;
-	public String name;
-	public String displayName;
-	public CriteriaObject criteria;
+	public PlotId id;
+	public String name, displayName, criteria;
+	
+	public ObjectiveObject() {
+		super();
+	}
+	
+	public ObjectiveObject(String parse) {
+		super(parse);
+	}
+	
+	public ObjectiveObject(PlotId pId, String name, String displayName, String criteria) {
+		this.id = pId;
+		this.name = name;
+		this.displayName = displayName;
+		this.criteria = criteria;
+	}
 	
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
-		return null;
+		return id.toString() + ";" + name + ";" + displayName + ";" + criteria;
 	}
 
 	@Override
 	public ObjectiveObject fromString(String serialized) {
-		// TODO Auto-generated method stub
-		return null;
+		String[] args = serialized.split(";", 5);
+		id = new PlotId(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
+		name = args[2];
+		displayName = args[3];
+		criteria = args[4];
+		return this;
+	}
+	
+	@Override
+	public ObjectiveObject getObject() {
+		return this;
 	}
 
 }

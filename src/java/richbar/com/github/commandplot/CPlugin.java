@@ -24,6 +24,7 @@ import richbar.com.github.commandplot.command.CBModeCommand;
 import richbar.com.github.commandplot.command.CommandPlotCommand;
 import richbar.com.github.commandplot.command.pipeline.*;
 import richbar.com.github.commandplot.listener.CommandAccessor;
+import richbar.com.github.commandplot.scoreboard.ScoreboardCache;
 import richbar.com.github.commandplot.util.CustomConfig;
 
 public class CPlugin extends JavaPlugin{
@@ -34,6 +35,7 @@ public class CPlugin extends JavaPlugin{
 	public ActivePlots activePlots;
 	public ExecutionLimiter limiter;
 	public FileConfiguration messages;
+	public ScoreboardCache scoreboard;
 	
     private MapChanger map;
 	private CustomConfig config;
@@ -75,7 +77,7 @@ public class CPlugin extends JavaPlugin{
 	        sqlMan.mysqlexecution(new PlayerSQLWrapper().getCreateTable());
         }
         	
-        
+        scoreboard = new ScoreboardCache(sqlMan);
         cbMode = new CommandBlockMode(this, BackendType.valueOf(backends.get(0).toUpperCase()));
         activePlots = new ActivePlots(this, BackendType.valueOf(backends.get(1).toUpperCase()));
         cmdAcc = new CommandAccessor(this, cbMode);

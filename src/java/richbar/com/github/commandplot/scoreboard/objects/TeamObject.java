@@ -11,11 +11,14 @@ public class TeamObject extends CacheObject<TeamObject>{
 	String displayName, name, color;
 	
 	boolean allowFriendlyFire, SeeFriendlyInvisibles,
-	
 	nameTagsOwnTeam, nameTagsOtherTeam,
 	collisionOwnTeam, collissionOtherTeams,
 	deathMessageOwnTeam, deathMessageOtherTeams;
 	
+	@Override
+	public TeamObject getObject() {
+		return this;
+	}
 	
 	@Override
 	public String toString() {
