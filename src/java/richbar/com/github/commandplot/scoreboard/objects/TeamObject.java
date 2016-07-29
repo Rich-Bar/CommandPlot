@@ -7,13 +7,28 @@ import richbar.com.github.commandplot.caching.CacheObject;
 @SuppressWarnings("serial")
 public class TeamObject extends CacheObject<TeamObject>{
 
-	PlotId plotId;
-	String displayName, name, color;
+	public PlotId plotId;
+	public String displayName;
+	public String name;
+	public String color;
 	
-	boolean allowFriendlyFire, SeeFriendlyInvisibles,
+	public boolean allowFriendlyFire, SeeFriendlyInvisibles,
 	nameTagsOwnTeam, nameTagsOtherTeam,
 	collisionOwnTeam, collissionOtherTeams,
 	deathMessageOwnTeam, deathMessageOtherTeams;
+	
+	public TeamObject() {
+		// TODO Auto-generated constructor stub
+	}
+	
+	public TeamObject(PlotId pId, String name, String displayName, int color, boolean...bs) {
+		// TODO Auto-generated constructor stub
+	}	
+
+	public TeamObject(PlotId pId, String name, String displayName, String color, boolean...bs) {
+		// TODO Auto-generated constructor stub
+	}
+	
 	
 	@Override
 	public TeamObject getObject() {
@@ -27,7 +42,6 @@ public class TeamObject extends CacheObject<TeamObject>{
 
 	@Override
 	public TeamObject fromString(String serialized) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

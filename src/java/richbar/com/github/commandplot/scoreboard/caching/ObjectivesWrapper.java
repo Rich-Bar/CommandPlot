@@ -4,35 +4,27 @@ import com.intellectualcrafters.plot.object.PlotId;
 
 public class ObjectivesWrapper{
 
-	public String getTableName() {
+	public static String getTableName() {
 		return "`%SCHEMA%`.`objectives`";
 	}
 	
-	public String getCreateTable(){
+	public static String getCreateTable(){
 		return "CREATE TABLE "+ getTableName() +" ( `id` INT NOT NULL AUTO_INCREMENT, `plotid` VARCHAR(13) NOT NULL, `name` VARCHAR(32) NOT NULL, `displayname` VARCHAR(45) NOT NULL, `criteria` VARCHAR(32) NOT NULL, PRIMARY KEY (`id`));";
 	}
 	
-	public String getAddObject(PlotId pId, String name, String displayName, String criteria){
+	public static String getAddObject(PlotId pId, String name, String displayName, String criteria){
 		return "INSERT INTO "+ getTableName() +" (`plotid`, `name`, `displayname`, `criteria`) VALUES ('"+ pId.toString() +"', '"+ name +"', '"+ displayName +"', '"+ criteria +"')";
 	}
 	
-	public String getRemovePlotObjectives(PlotId pId){
+	public static String getRemovePlotObjectives(PlotId pId){
 		return "DELETE FROM "+ getTableName() +" WHERE `plotid` = '"+ pId.toString() +"'";
 	}
 	
-	public String getRemoveObjective(String name){
+	public static String getRemoveObjective(String name){
 		return "DELETE FROM "+ getTableName() +" WHERE `name` = '"+ name +"'";
 	}
 	
-	public String getPlotObjectives(PlotId pId){
-		return "SELECT * FROM " + getTableName() + " WHERE `plotid` = '" + pId.toString() + "'";
-	}
-	
-	public String getObjective(String name){
-		return "SELECT * FROM " + getTableName() + " WHERE `plotid` = '" + name + "'";
-	}
-	
-	public String getAllObjects(){
+	public static String getAllObjects(){
 		return "SELECT * FROM " + getTableName();
 	}
 }

@@ -27,17 +27,17 @@ public class NBTCache implements CacheBackend<Tag> {
 	
 	@Override
 	public boolean remove(CacheObject<Tag> elem) {
-		return remove(elem.object);
+		return remove(elem.getObject());
 	}
 
 	@Override
 	public boolean addObject(CacheObject<Tag> elem) {
-		return addObject(elem.object);
+		return addObject(elem.getObject());
 	}
 
 	@Override
 	public boolean contains(CacheObject<Tag> elem) {
-		return contains(elem.object);
+		return contains(elem.getObject());
 	}
 	
 	public boolean remove(Tag elem) {
