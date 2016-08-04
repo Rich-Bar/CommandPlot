@@ -20,8 +20,8 @@ public class ObjectivesWrapper{
 		return "DELETE FROM "+ getTableName() +" WHERE `plotid` = '"+ pId.toString() +"'";
 	}
 	
-	public static String getRemoveObjective(String name){
-		return "DELETE FROM "+ getTableName() +" WHERE `name` = '"+ name +"'";
+	public static String getRemoveObjective(PlotId pId, String name){
+		return "DELETE FROM "+ getTableName() +" WHERE `plotid` = '"+ pId.toString() +"' AND `name` = '"+ name +"'";
 	}
 	
 	public static String getAllObjects(){

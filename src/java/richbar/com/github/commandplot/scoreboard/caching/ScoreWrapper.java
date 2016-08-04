@@ -26,16 +26,16 @@ public class ScoreWrapper {
 		return "DELETE FROM "+ getTableName() +" WHERE `uuid` = '"+ uuid.toString() +"'";
 	}
 	
-	public static String getRemoveSpecificPlayerObjective(UUID uuid, String name){
-		return "DELETE FROM "+ getTableName() +" WHERE `uuid` = '"+ uuid.toString() +"' AND `name` = '" + name + "'";
+	public static String getRemoveSpecificPlayerObjective(UUID uuid, PlotId pId, String name){
+		return "DELETE FROM "+ getTableName() +" WHERE `uuid` = '"+ uuid.toString() +"' AND `name` = '" + name + "' AND `plotid` = '"+ pId.toString() +"'";
 	}
 	
-	public static String getChangeSpecificScore(UUID uuid, String name, int incBy){
-		return "UPDATE " + getTableName() + " SET `score` = `score` + " + incBy + " WHERE `uuid` = '" + uuid.toString() + "' AND `name` = '" + name + "'";
+	public static String getChangeSpecificScore(UUID uuid, PlotId pId, String name, int incBy){
+		return "UPDATE " + getTableName() + " SET `score` = `score` + " + incBy + " WHERE `uuid` = '" + uuid.toString() + "' AND `name` = '" + name + "' AND `plotid` = '"+ pId.toString() +"'";
 	}
 	
-	public static String getSetSpecificScore(UUID uuid, String name, int to){
-		return "UPDATE " + getTableName() + " SET `score` = " + to + " WHERE `uuid` = '" + uuid.toString() + "' AND `name` = '" + name + "'";
+	public static String getSetSpecificScore(UUID uuid, PlotId pId, String name, int to){
+		return "UPDATE " + getTableName() + " SET `score` = " + to + " WHERE `uuid` = '" + uuid.toString() + "' AND `name` = '" + name + "' AND `plotid` = '"+ pId.toString() +"'";
 	}
 	
 	public static String getAllObjectives(){

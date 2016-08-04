@@ -17,11 +17,10 @@ public class ObjectivesCache{
 	private Map<PlotId, List<ObjectiveObject>> plotObjectives = new HashMap<>();
 	
 	protected SQLManager sqlMan;
-	protected ObjectivesWrapper sqlWrap;
 	
 	public ObjectivesCache(SQLManager sqlMan) {
 		this.sqlMan = sqlMan;
-		
+		create();
 		loadFromBackend();
 	}
 	
@@ -30,7 +29,7 @@ public class ObjectivesCache{
 		if(obj == null || obj.isEmpty()) obj = new ArrayList<>();
 		obj.add(objective);
 		plotObjectives.put(pId, obj);
-		//TODO: MYSQL
+		sqlMan.mysqlexecution(ObjectivesWrapper.getAddObject(pId, objective.name, objective.displayName, objective.criteria));
 	}
 	
 	public ObjectiveObject getObjectiveByName(PlotId pId, String name){
@@ -71,24 +70,27 @@ public class ObjectivesCache{
 	public void removeObjective(PlotId pId, ObjectiveObject objective){
 		if(getAllObjectives(pId).isEmpty()) return;
 		plotObjectives.get(pId).remove(objective);
-		//TODO: MYSQL
+		sqlMan.mysqlexecution(ObjectivesWrapper.getRemoveObjective(pId, objective.name));
 	}
 
 	public void removeObjective(PlotId pId, String objective){
 		for(ObjectiveObject obj : getAllObjectives(pId)){
 			if(obj.name == objective) plotObjectives.get(pId).remove(objective);
-			//TODO: MYSQL
+			sqlMan.mysqlexecution(ObjectivesWrapper.getRemoveObjective(pId, objective));
 		}
 	}
 	
 	public void removePlot(PlotId pId){
 		if(plotObjectives.containsKey(pId))plotObjectives.remove(pId);
-		//TODO: MYSQL
+		sqlMan.mysqlexecution(ObjectivesWrapper.getRemovePlotObjectives(pId));
+	}
+	
+	public void create(){
+		sqlMan.mysqlexecution(ObjectivesWrapper.getCreateTable());
 	}
 	
 	public void loadFromBackend(){
-		@SuppressWarnings("static-access")
-		ResultSet allObjects = sqlMan.mysqlquery(sqlWrap.getAllObjects());
+		ResultSet allObjects = sqlMan.mysqlquery(ObjectivesWrapper.getAllObjects());
 		if(allObjects == null) return;
 		try {
 			while(allObjects.next()){

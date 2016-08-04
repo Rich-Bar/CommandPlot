@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import com.intellectualcrafters.plot.object.PlotId;
 
@@ -17,28 +16,29 @@ public class TeamCache{
 
 	private Map<PlotId, List<TeamObject>> teams = new HashMap<>();
 	
-	private TeamWrapper wrapper;
 	private SQLManager sqlMan;
 
 	public TeamCache(SQLManager man) {
 		this.sqlMan = man;
-	
+		create();
 		loadFromBackend();
 	}
 
 	private void loadFromBackend() {
-		@SuppressWarnings("static-access")
-		ResultSet allObjects = sqlMan.mysqlquery(wrapper.getAllTeams());
+		ResultSet allObjects = sqlMan.mysqlquery(TeamWrapper.getAllTeams());
 		if(allObjects == null) return;
 		try {
 			while(allObjects.next()){
-				String plotid = allObjects.getString("plotid");
+				String[] plotid = allObjects.getString("plotid").split(";");
 				String name = allObjects.getString("name");
 				String displayname = allObjects.getString("displayname");
-				int color = allObjects.getInt("color");
-				@SuppressWarnings("static-access")
-				boolean[] settings = wrapper.getSettingsBoolean(allObjects.getInt("settings"));
+				String color = allObjects.getString("color");
+				boolean[] settings = TeamWrapper.getSettingsBoolean(allObjects.getInt("settings"));
 				
+				PlotId pId = new PlotId(Integer.parseInt(plotid[0]), Integer.parseInt(plotid[1]));
+				if(!teams.containsKey(pId)) teams.put(pId, new ArrayList<>());
+				List<TeamObject> list = teams.get(pId);
+				list.add(new TeamObject(pId, name, displayname, color, settings));
 			}
 		} catch (SQLException e) {}
 	}
@@ -47,7 +47,7 @@ public class TeamCache{
 		List<TeamObject> oldTeams = getAllTeams(pId);
 		oldTeams.add(team);
 		teams.put(pId, oldTeams);
-		//TODO: MYSQL
+		sqlMan.mysqlexecution(TeamWrapper.getAddObject(pId, team.name, team.displayName, team.color, TeamWrapper.getSettingsInt(team.allowFriendlyFire, team.collisionOwnTeam, team.collissionOtherTeams, team.deathMessageOtherTeams, team.deathMessageOwnTeam, team.nameTagsOtherTeam, team.nameTagsOwnTeam, team.SeeFriendlyInvisibles)));
 	}
 	
 	public List<TeamObject> getAllTeams(PlotId pId){
@@ -77,11 +77,19 @@ public class TeamCache{
 		for(TeamObject obj : getAllTeams(pId)){
 			if(obj.name == name) teams.get(pId).remove(obj);
 		}
-		//TODO: MYSQL
+		sqlMan.mysqlexecution(TeamWrapper.getRemoveTeam(pId, name));
 	}
 	
 	public void removePlot(PlotId pId){
 		teams.remove(pId);
-		//TODO: MYSQL
+		sqlMan.mysqlexecution(TeamWrapper.getRemovePlotTeams(pId));
+	}
+	
+	public void create(){
+		sqlMan.mysqlexecution(TeamWrapper.getCreateTable());
+	}
+	
+	enum TeamColors{
+		black, dark_blue, dark_green, dark_aqua, dark_red, dark_purple, gold, gray, dark_gray, blue, green, aqua, red, light_purple, yellow, white;
 	}
 }

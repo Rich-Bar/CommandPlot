@@ -76,8 +76,8 @@ public class CPlugin extends JavaPlugin{
 	        }
 	        sqlMan.mysqlexecution(new PlayerSQLWrapper().getCreateTable());
         }
-        	
-        scoreboard = new ScoreboardCache(sqlMan);
+        
+        scoreboard = new ScoreboardCache(sqlMan, check);
         cbMode = new CommandBlockMode(this, BackendType.valueOf(backends.get(0).toUpperCase()));
         activePlots = new ActivePlots(this, BackendType.valueOf(backends.get(1).toUpperCase()));
         cmdAcc = new CommandAccessor(this, cbMode);

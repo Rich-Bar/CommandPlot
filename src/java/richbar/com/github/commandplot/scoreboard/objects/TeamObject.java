@@ -1,11 +1,12 @@
 package richbar.com.github.commandplot.scoreboard.objects;
 
+import java.util.Arrays;
+
 import com.intellectualcrafters.plot.object.PlotId;
 
-import richbar.com.github.commandplot.caching.CacheObject;
+import richbar.com.github.commandplot.scoreboard.caching.TeamWrapper;
 
-@SuppressWarnings("serial")
-public class TeamObject extends CacheObject<TeamObject>{
+public class TeamObject{
 
 	public PlotId plotId;
 	public String displayName;
@@ -16,33 +17,25 @@ public class TeamObject extends CacheObject<TeamObject>{
 	nameTagsOwnTeam, nameTagsOtherTeam,
 	collisionOwnTeam, collissionOtherTeams,
 	deathMessageOwnTeam, deathMessageOtherTeams;
+
 	
-	public TeamObject() {
-		// TODO Auto-generated constructor stub
+	public TeamObject(PlotId pId, String name, String displayName, String color, int bs) {
+		this(pId, name, displayName, color, TeamWrapper.getSettingsBoolean(bs));
 	}
-	
-	public TeamObject(PlotId pId, String name, String displayName, int color, boolean...bs) {
-		// TODO Auto-generated constructor stub
-	}	
 
 	public TeamObject(PlotId pId, String name, String displayName, String color, boolean...bs) {
-		// TODO Auto-generated constructor stub
+		plotId = pId;
+		this.name = name;
+		this.displayName = displayName;
+		this.color = color;
+		boolean[] booleans = Arrays.copyOfRange(bs, 0, 8);
+		this.allowFriendlyFire = booleans[0];
+		this.collisionOwnTeam = booleans[1];
+		this.collissionOtherTeams = booleans[2];
+		this.deathMessageOtherTeams = booleans[3];
+		this.deathMessageOwnTeam = booleans[4];
+		this.nameTagsOtherTeam = booleans[5];
+		this.nameTagsOwnTeam = booleans[6];
+		this.SeeFriendlyInvisibles = booleans[7];
 	}
-	
-	
-	@Override
-	public TeamObject getObject() {
-		return this;
-	}
-	
-	@Override
-	public String toString() {
-		return null;
-	}
-
-	@Override
-	public TeamObject fromString(String serialized) {
-		return null;
-	}
-
 }

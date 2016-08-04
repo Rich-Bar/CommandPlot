@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import com.intellectualcrafters.plot.object.PlotId;
@@ -15,17 +16,19 @@ public class ScoreCache {
 	
 	private Map<UUID, Map<String, Integer>> scores = new HashMap<>();
 	private SQLManager sqlMan;
-	private ScoreWrapper wrapper;
 	
 	public ScoreCache(SQLManager man) {
 		this.sqlMan = man;
-		
+		create();
 		loadFromBackend();
 	}
 	
+	public void create(){
+		sqlMan.mysqlexecution(ScoreWrapper.getCreateTable());
+	}
+	
 	private void loadFromBackend() {
-		@SuppressWarnings("static-access")
-		ResultSet allObjects = sqlMan.mysqlquery(wrapper.getAllObjectives());
+		ResultSet allObjects = sqlMan.mysqlquery(ScoreWrapper.getAllObjectives());
 		if(allObjects == null) return;
 		try {
 			while(allObjects.next()){
@@ -55,8 +58,13 @@ public class ScoreCache {
 	}
 	
 	public void setScore(PlotId pId, UUID uuid, String name, int val){
-		scores.get(uuid).replace(pId.toString() +"|"+ name , val);
-		//TODO: MYSQL
+		getAllScores(uuid).replace(pId.toString() +"|"+ name , val);
+		sqlMan.mysqlexecution(ScoreWrapper.getSetSpecificScore(uuid, pId,  name, val));
+	}
+	
+	public void changeScore(PlotId pId, UUID uuid, String name, int by){
+		getAllScores(uuid).replace(pId.toString() +"|"+ name , getScore(pId, uuid, name) + by);
+		sqlMan.mysqlexecution(ScoreWrapper.getChangeSpecificScore(uuid, pId, name, by));
 	}
 	
 	public int getScore(PlotId pId, UUID uuid, ObjectiveObject objective){
@@ -64,7 +72,11 @@ public class ScoreCache {
 	}
 	
 	public int getScore(PlotId pId, UUID uuid, String name){
-		return scores.get(uuid).get(pId.toString() +"|"+ name);
+		return getAllScores(uuid).get(pId.toString() +"|"+ name);
+	}
+	
+	public Set<UUID> getAllPlayers(){
+		return scores.keySet();
 	}
 	
 	public Map<String, Integer> getAllScores(UUID uuid){
@@ -81,12 +93,12 @@ public class ScoreCache {
 	}
 	
 	public void removeScore(UUID uuid, PlotId pId, String name){
-		scores.get(uuid).remove(pId.toString() +"|"+ name);
-		//TODO: MYSQL
+		getAllScores(uuid).remove(pId.toString() +"|"+ name);
+		sqlMan.mysqlexecution(ScoreWrapper.getRemoveSpecificPlayerObjective(uuid, pId, name));
 	}	
 
 	public void removePlayer(UUID uuid){
 		scores.remove(uuid);
-		//TODO: MYSQL
+		sqlMan.mysqlexecution(ScoreWrapper.getRemovePlayerObjectives(uuid));
 	}
 }

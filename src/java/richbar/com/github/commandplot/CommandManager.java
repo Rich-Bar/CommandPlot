@@ -393,7 +393,7 @@ public class CommandManager extends SimpleCommandManager{
 		return main.getServer().getPlayer(name);
 	}
 	
-	private Map<UUID, Object> getUUIDset(Object... es){
+	public static Map<UUID, Object> getUUIDset(Object... es){
 		Map<UUID, Object> res = new HashMap<>();
 		for(Object e : es){
 			if(e instanceof Entity)res.put(((Entity) e).getUniqueId(), e);
