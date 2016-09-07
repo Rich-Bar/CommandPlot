@@ -1,16 +1,16 @@
 package richbar.com.github.commandplot.scoreboard.caching;
 
+import com.intellectualcrafters.plot.object.PlotId;
+import richbar.com.github.commandplot.caching.sql.SQLManager;
+import richbar.com.github.commandplot.scoreboard.objects.TeamObject;
+import richbar.com.github.commandplot.util.TeamColor;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.intellectualcrafters.plot.object.PlotId;
-
-import richbar.com.github.commandplot.caching.sql.SQLManager;
-import richbar.com.github.commandplot.scoreboard.objects.TeamObject;
 
 public class TeamCache{
 
@@ -32,13 +32,13 @@ public class TeamCache{
 				String[] plotid = allObjects.getString("plotid").split(";");
 				String name = allObjects.getString("name");
 				String displayname = allObjects.getString("displayname");
-				String color = allObjects.getString("color");
+				int color = allObjects.getInt("color");
 				boolean[] settings = TeamWrapper.getSettingsBoolean(allObjects.getInt("settings"));
 				
 				PlotId pId = new PlotId(Integer.parseInt(plotid[0]), Integer.parseInt(plotid[1]));
 				if(!teams.containsKey(pId)) teams.put(pId, new ArrayList<>());
 				List<TeamObject> list = teams.get(pId);
-				list.add(new TeamObject(pId, name, displayname, color, settings));
+				list.add(new TeamObject(pId, name, displayname, TeamColor.getColor(color), settings));
 			}
 		} catch (SQLException e) {}
 	}
@@ -47,7 +47,7 @@ public class TeamCache{
 		List<TeamObject> oldTeams = getAllTeams(pId);
 		oldTeams.add(team);
 		teams.put(pId, oldTeams);
-		sqlMan.mysqlexecution(TeamWrapper.getAddObject(pId, team.name, team.displayName, team.color, TeamWrapper.getSettingsInt(team.allowFriendlyFire, team.collisionOwnTeam, team.collissionOtherTeams, team.deathMessageOtherTeams, team.deathMessageOwnTeam, team.nameTagsOtherTeam, team.nameTagsOwnTeam, team.SeeFriendlyInvisibles)));
+		sqlMan.mysqlexecution(TeamWrapper.getAddObject(pId, team.name, team.displayName, team.color.getIndex(), TeamWrapper.getSettingsInt(team.allowFriendlyFire, team.collisionOwnTeam, team.collissionOtherTeams, team.deathMessageOtherTeams, team.deathMessageOwnTeam, team.nameTagsOtherTeam, team.nameTagsOwnTeam, team.SeeFriendlyInvisibles)));
 	}
 	
 	public List<TeamObject> getAllTeams(PlotId pId){
@@ -87,9 +87,5 @@ public class TeamCache{
 	
 	public void create(){
 		sqlMan.mysqlexecution(TeamWrapper.getCreateTable());
-	}
-	
-	enum TeamColors{
-		black, dark_blue, dark_green, dark_aqua, dark_red, dark_purple, gold, gray, dark_gray, blue, green, aqua, red, light_purple, yellow, white;
 	}
 }

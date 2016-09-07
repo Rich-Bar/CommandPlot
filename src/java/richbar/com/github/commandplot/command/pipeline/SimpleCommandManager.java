@@ -8,8 +8,8 @@ import org.bukkit.entity.minecart.CommandMinecart;
 public class SimpleCommandManager extends Command{
 
 	Command next;
-	
-	protected SimpleCommandManager(Command c) {
+
+	public SimpleCommandManager(Command c) {
 		super(c.getName(), c.getDescription(), c.getUsage(), c.getAliases());
 		this.next = c;
 	}

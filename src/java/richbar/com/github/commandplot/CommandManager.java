@@ -1,148 +1,33 @@
 package richbar.com.github.commandplot;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.logging.Logger;
-
+import com.intellectualcrafters.plot.object.Plot;
+import com.intellectualcrafters.plot.object.PlotId;
 import org.bukkit.Location;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.craftbukkit.v1_10_R1.command.VanillaCommandWrapper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.minecart.CommandMinecart;
-
-import com.intellectualcrafters.plot.object.Plot;
-import com.intellectualcrafters.plot.object.PlotId;
-
-import org.bukkit.craftbukkit.v1_10_R1.command.VanillaCommandWrapper;
-import net.minecraft.server.v1_10_R1.CommandAbstract;
-import net.minecraft.server.v1_10_R1.CommandBlockData;
-import net.minecraft.server.v1_10_R1.CommandClear;
-import net.minecraft.server.v1_10_R1.CommandClone;
-import net.minecraft.server.v1_10_R1.CommandEffect;
-import net.minecraft.server.v1_10_R1.CommandEnchant;
-import net.minecraft.server.v1_10_R1.CommandEntityData;
-import net.minecraft.server.v1_10_R1.CommandExecute;
-import net.minecraft.server.v1_10_R1.CommandFill;
-import net.minecraft.server.v1_10_R1.CommandGamemode;
-import net.minecraft.server.v1_10_R1.CommandGive;
-import net.minecraft.server.v1_10_R1.CommandKill;
-import net.minecraft.server.v1_10_R1.CommandParticle;
-import net.minecraft.server.v1_10_R1.CommandPlaySound;
-import net.minecraft.server.v1_10_R1.CommandReplaceItem;
-import net.minecraft.server.v1_10_R1.CommandSay;
-import net.minecraft.server.v1_10_R1.CommandSetBlock;
-import net.minecraft.server.v1_10_R1.CommandSpreadPlayers;
-import net.minecraft.server.v1_10_R1.CommandStopSound;
-import net.minecraft.server.v1_10_R1.CommandSummon;
-import net.minecraft.server.v1_10_R1.CommandTell;
-import net.minecraft.server.v1_10_R1.CommandTellRaw;
-import net.minecraft.server.v1_10_R1.CommandTestFor;
-import net.minecraft.server.v1_10_R1.CommandTestForBlock;
-import net.minecraft.server.v1_10_R1.CommandTestForBlocks;
-import net.minecraft.server.v1_10_R1.CommandTitle;
-import net.minecraft.server.v1_10_R1.CommandTp;
-import net.minecraft.server.v1_10_R1.CommandXp;
-
 import richbar.com.github.commandplot.api.PlotChecker;
 import richbar.com.github.commandplot.caching.objects.PlotObject;
+import richbar.com.github.commandplot.command.Commands;
+import richbar.com.github.commandplot.command.ElemType;
 import richbar.com.github.commandplot.command.ExecuteSender;
 import richbar.com.github.commandplot.command.TestForSender;
 import richbar.com.github.commandplot.command.pipeline.SimpleCommandManager;
 import richbar.com.github.commandplot.util.IsLocation;
 
-public class CommandManager extends SimpleCommandManager{
-	public enum Commands{
+import java.util.*;
+import java.util.logging.Logger;
 
-		BLOCKDATA(new CommandBlockData(),elemType.COORDS, elemType.REST),
-		CLEAR	(new CommandClear(), elemType.PLAYER, elemType.REST),
-		CLONE	(new CommandClone(), elemType.COORDS, elemType.COORDS, elemType.DCOORDS, elemType.REST),
-		EFFECT	(new CommandEffect(), elemType.ENTITY, elemType.REST),
-		ENCHANT	(new CommandEnchant(), elemType.PLAYER, elemType.REST),
-		ENTITYDATA(new CommandEntityData(),elemType.ENTITY, elemType.REST),
-		EXECUTE(new CommandExecute(), elemType.ENTITY, elemType.DCOORDS, elemType.COMMAND),
-		FILL	(new CommandFill(), elemType.COORDS, elemType.COORDS, elemType.REST),
-		GAMEMODE(new CommandGamemode(), elemType.ARG, elemType.PLAYER),
-		GIVE	(new CommandGive(), elemType.PLAYER, elemType.ARG, elemType.REST),
-		KILL	(new CommandKill(), elemType.ENTITY),
-		PARTICLE(new CommandParticle(), elemType.ARG, elemType.COORDS, elemType.DCOORDS, elemType.REST),
-		PLAYSOUND(new CommandPlaySound(),elemType.ARG, elemType.ARG, elemType.PLAYER, elemType.COORDS, elemType.MAX2, elemType.MAX2, elemType.MAX1),
-		REPLACEITEM(new CommandReplaceItem(), elemType.ARG, elemType.ENTITYorCOORD, elemType.REST),
-		REPLACEITEMCOORD(new CommandReplaceItem(), elemType.ARG, elemType.COORDS, elemType.REST),
-		SAY		(new CommandSay(), elemType.REST),
-		
-		//SCOREBOARD(new CommandScoreboard(), elemType.REST), //TODO: Implement Scoreboard
-		//STATS(...),
-		
-		SETBLOCK(new CommandSetBlock(), elemType.COORDS, elemType.REST),
-		SPREADPLAYERS(new CommandSpreadPlayers(), elemType.DCOORDS, elemType.REST),
-		STOPSOUND(new CommandStopSound(), elemType.PLAYER, elemType.REST),
-		SUMMON	(new CommandSummon(), elemType.MOB, elemType.COORDS, elemType.REST),
-		TELL	(new CommandTell(), elemType.PLAYER, elemType.REST),
-		TELLRAW	(new CommandTellRaw(), elemType.PLAYER, elemType.REST),
-		TESTFOR	(new CommandTestFor(), elemType.PLAYER, elemType.REST),
-		TESTFORBLOCK(new CommandTestForBlock(), elemType.COORDS, elemType.REST),
-		TESTFORBLOCKS(new CommandTestForBlocks(), elemType.COORDS, elemType.COORDS, elemType.REST),
-		TITLE	(new CommandTitle(), elemType.PLAYER, elemType.REST),
-		TP		(new CommandTp(), elemType.PLAYER, elemType.ENTITYorCOORD),
-		TPCOORD	(new CommandTp(), elemType.PLAYER, elemType.COORDS),
-		
-		//TRIGGER (new CommandTrigger(), elemType.REST),
-		
-		XP		(new CommandXp(), elemType.ARG, elemType.PLAYER);
-		
-		CommandAbstract id;
-		private elemType[] elements;
-		private Commands(CommandAbstract typeID, elemType... elements) {
-			this.elements = elements;
-			id = typeID;
-		}
-		public elemType[] getElements(){
-			return elements;
-		}
-		public CommandAbstract getInst(){
-			return id;
-		}
-		/**
-		 * Returns the actual argument index of the command based of the complex command elements.
-		 * @param complexIndex
-		 * @return
-		 */
-		public int getIndex(int complexIndex){
-			int res = 0;
-			for(int i = 0; i < complexIndex; i++){
-				switch(elements[i]){
-				case MOB:
-				case PLAYER:
-				case ENTITY:
-				case ENTITYorCOORD:
-				case ARG:
-				case MAX1:
-				case MAX2: 
-					res++;
-					break;
-				case COORDS:
-				case DCOORDS:
-					res += 3;
-				default:
-				break;
-				}
-			}
-			return res;
-		}
-	}
-	public static enum elemType{
-		MOB, ENTITY, COORDS, DCOORDS, ARG, MAX1, MAX2, REST, PLAYER, COMMAND, ENTITYorCOORD;
-	}
+public class CommandManager extends SimpleCommandManager{
+
 	
 	
-	CPlugin main;
-	PlotChecker<?> checker;
+	private CPlugin main;
+	private PlotChecker<?> checker;
 	public CommandManager(CPlugin cPlugin, Command c) {
 		super(c);
 		main = cPlugin;
@@ -151,7 +36,7 @@ public class CommandManager extends SimpleCommandManager{
 
 	@Override
     public boolean execute(CommandSender sender, String label, String[] args) {
-        Location blockpos = new Location(main.getServer().getWorlds().get(0), 0, 0, 0, 0, 0);
+        Location blockpos;
 		if(sender instanceof BlockCommandSender) {
             // Commandblock executed command
 			blockpos = ((BlockCommandSender) sender).getBlock().getLocation();
@@ -163,17 +48,19 @@ public class CommandManager extends SimpleCommandManager{
             blockpos = ((ExecuteSender) sender).getLocation();
         }else if(sender instanceof Player) {
             blockpos = ((Player) sender).getLocation();
+			if(!((Plot)checker.getPlot(blockpos)).getMembers().contains(((Player) sender).getUniqueId())) return false;
         }else{
         	return onVanilla(sender, label, args);
         }
 		
 		Logger.getGlobal().warning(label + Arrays.toString(args));
-		
-		
+		Plot plot = ((Plot)checker.getPlot(blockpos));
+
+		if(!main.getWhitelist().contains(label.toLowerCase()) || plot == null) return false;
+
 		if(!(checker.isPlotWorld(blockpos.getWorld())))return onVanilla(sender, label, args);
-		if(!main.getWhitelist().contains(label.toLowerCase()) || ((Plot)checker.getPlot(blockpos)) == null) return false;
-		PlotId pId = ((Plot)checker.getPlot(blockpos)).getId();
-		
+		PlotId pId = plot.getId();
+
 		if(!(checker.canRun(blockpos) || main.activePlots.contains(new PlotObject(pId)))){
 			sender.sendMessage("no Plotmember in plot nor always active!");
 			return false;
@@ -192,7 +79,7 @@ public class CommandManager extends SimpleCommandManager{
         	if(commandType.ordinal() == Commands.TP.ordinal() && args.length > 2)
         		commandType = Commands.TPCOORD; 
     		
-    		elemType[] elements = commandType.getElements();
+    		ElemType[] elements = commandType.getElements();
     		
     		
     		Location prev = null;
@@ -200,8 +87,8 @@ public class CommandManager extends SimpleCommandManager{
     		List<String> invalidArgs = new ArrayList<>();
     		
     		int i = 0;
-    		for(elemType element : elements){
-    			if(element == elemType.REST || commandType.getIndex(i) >= args.length) break;
+    		for(ElemType element : elements){
+    			if(element == ElemType.REST || commandType.getIndex(i) >= args.length) break;
     			switch (element) {
     				case ARG:
     					if(commandType.ordinal() == Commands.GIVE.ordinal() && args[1].replace(":", "").contains(":")){
@@ -382,7 +269,7 @@ public class CommandManager extends SimpleCommandManager{
 	{		
     	try{
     		Commands commandType = Commands.valueOf(label.toUpperCase());
-    		VanillaCommandWrapper wrap = new VanillaCommandWrapper(commandType.id);
+    		VanillaCommandWrapper wrap = new VanillaCommandWrapper(commandType.getInst());
     		return wrap.execute(sender, label, args);
     	}catch(IllegalArgumentException|NullPointerException exc){
     		return false;

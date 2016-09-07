@@ -9,10 +9,10 @@ public class TeamWrapper{
 	}
 	
 	public static String getCreateTable(){
-		return "CREATE TABLE "+ getTableName() +" (`id` INT NOT NULL AUTO_INCREMENT, `plotid` VARCHAR(13) NOT NULL, `name` VARCHAR(32) NOT NULL, `displayname` VARCHAR(32) NOT NULL, `color` VARCHAR(16) NULL, `settings` INT NULL, PRIMARY KEY (`id`));";
+		return "CREATE TABLE "+ getTableName() +" (`id` INT NOT NULL AUTO_INCREMENT, `plotid` VARCHAR(13) NOT NULL, `name` VARCHAR(32) NOT NULL, `displayname` VARCHAR(32) NOT NULL, `color` INT NOT NULL, `settings` INT NULL, PRIMARY KEY (`id`));";
 	}
 	
-	public static String getAddObject(PlotId pId, String name, String displayName, String color, int settingsByte){
+	public static String getAddObject(PlotId pId, String name, String displayName, int color, int settingsByte){
 		return "INSERT INTO "+ getTableName() +" (`plotid`, `name`, `displayname`, `color`, `settings`) VALUES ('"+ pId.toString() +"', '"+ name +"', '"+ displayName +"', '"+ color +"', )";
 	}
 	

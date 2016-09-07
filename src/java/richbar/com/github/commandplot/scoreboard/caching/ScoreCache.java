@@ -1,16 +1,17 @@
 package richbar.com.github.commandplot.scoreboard.caching;
 
+import com.intellectualcrafters.plot.object.PlotId;
+import richbar.com.github.commandplot.caching.sql.SQLManager;
+import richbar.com.github.commandplot.scoreboard.ScoreboardCache;
+import richbar.com.github.commandplot.scoreboard.objects.ObjectiveObject;
+import richbar.com.github.commandplot.scoreboard.objects.TeamObject;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-
-import com.intellectualcrafters.plot.object.PlotId;
-
-import richbar.com.github.commandplot.caching.sql.SQLManager;
-import richbar.com.github.commandplot.scoreboard.objects.ObjectiveObject;
 
 public class ScoreCache {
 	
@@ -100,5 +101,17 @@ public class ScoreCache {
 	public void removePlayer(UUID uuid){
 		scores.remove(uuid);
 		sqlMan.mysqlexecution(ScoreWrapper.getRemovePlayerObjectives(uuid));
+	}
+
+	public void loadAllTeams(ScoreboardCache cache){
+		for(Map.Entry<UUID, Map<String, Integer>> p : scores.entrySet()){
+			for (Map.Entry<String, Integer> score : p.getValue().entrySet()){
+				if(score.getKey().startsWith("team.")){
+					String pidString = score.getKey().substring(5);
+					TeamObject team = cache.teams.getAllTeams(PlotId.fromString(pidString)).get(score.getValue());
+					if(team != null) team.members.add(p.getKey());
+				}
+			}
+		}
 	}
 }

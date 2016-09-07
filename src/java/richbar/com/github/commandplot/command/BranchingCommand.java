@@ -1,20 +1,23 @@
 package richbar.com.github.commandplot.command;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 
-public class BranchingCommand implements CommandExecutor{
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+public class BranchingCommand extends Command implements CommandExecutor{
 
 	protected Map<String, CommandExecutor> subExecutors = new HashMap<>(); 
 	public FileConfiguration messages;
-	
-	public BranchingCommand(FileConfiguration messages) {
+	private String label;
+
+	public BranchingCommand(FileConfiguration messages, String label) {
+		super(label);
+		this.label = label;
 		this.messages = messages;
 	}
 	
@@ -29,4 +32,8 @@ public class BranchingCommand implements CommandExecutor{
 		return false;
 	}
 
+	@Override
+	public boolean execute(CommandSender commandSender, String s, String[] strings) {
+		return onCommand(commandSender, this, label, strings);
+	}
 }

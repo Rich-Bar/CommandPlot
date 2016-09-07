@@ -1,32 +1,31 @@
 package richbar.com.github.commandplot.command.pipeline;
 
-import java.lang.reflect.Field;
-import java.util.Map;
-
 import org.bukkit.command.Command;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.SimplePluginManager;
-
 import richbar.com.github.commandplot.CPlugin;
 
-public class CustomCommandMap {
+import java.lang.reflect.Field;
+import java.util.Map;
+
+class CustomCommandMap {
 	
-	CPlugin main;
-	
+	private CPlugin main;
+
 	Map<String, Command> knownCommands;
 	SimpleCommandMap commandMap;
 	
-	public CustomCommandMap(CPlugin main) {
+	CustomCommandMap(CPlugin main) {
 		this.main = main;
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void init() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException{
+	void init() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException{
 		PluginManager manager = main.getServer().getPluginManager();
 		SimplePluginManager spm = (SimplePluginManager) manager;
 		
-		Field commandMapField = null;
+		Field commandMapField;
 		if (spm != null)
 		{
 		    Field pluginsField = spm.getClass().getDeclaredField("plugins");
