@@ -6,9 +6,9 @@ import org.bukkit.entity.Player;
 
 public abstract class PlotChecker<A> {
 	
-	A api;
+	final A api;
 	
-	public PlotChecker(A api) {
+	PlotChecker(A api) {
 		this.api = api;
 	}
 	

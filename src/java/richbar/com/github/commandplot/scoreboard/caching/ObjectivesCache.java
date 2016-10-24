@@ -2,10 +2,7 @@ package richbar.com.github.commandplot.scoreboard.caching;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.intellectualcrafters.plot.object.PlotId;
 
@@ -14,9 +11,9 @@ import richbar.com.github.commandplot.scoreboard.objects.ObjectiveObject;
 
 public class ObjectivesCache{
 
-	private Map<PlotId, List<ObjectiveObject>> plotObjectives = new HashMap<>();
-	
-	protected SQLManager sqlMan;
+	private final Map<PlotId, List<ObjectiveObject>> plotObjectives = new HashMap<>();
+
+	private final SQLManager sqlMan;
 	
 	public ObjectivesCache(SQLManager sqlMan) {
 		this.sqlMan = sqlMan;
@@ -62,7 +59,7 @@ public class ObjectivesCache{
 	
 	public boolean contains(PlotId pId, String objective){
 		for(ObjectiveObject obj : getAllObjectives(pId)){
-			if(obj.name == objective) return true;
+			if(Objects.equals(obj.name, objective)) return true;
 		}
 		return false;
 	}
@@ -75,7 +72,7 @@ public class ObjectivesCache{
 
 	public void removeObjective(PlotId pId, String objective){
 		for(ObjectiveObject obj : getAllObjectives(pId)){
-			if(obj.name == objective) plotObjectives.get(pId).remove(objective);
+			if(Objects.equals(obj.name, objective)) plotObjectives.get(pId).remove(objective);
 			sqlMan.mysqlexecution(ObjectivesWrapper.getRemoveObjective(pId, objective));
 		}
 	}
@@ -84,12 +81,12 @@ public class ObjectivesCache{
 		if(plotObjectives.containsKey(pId))plotObjectives.remove(pId);
 		sqlMan.mysqlexecution(ObjectivesWrapper.getRemovePlotObjectives(pId));
 	}
-	
-	public void create(){
+
+	private void create(){
 		sqlMan.mysqlexecution(ObjectivesWrapper.getCreateTable());
 	}
-	
-	public void loadFromBackend(){
+
+	private void loadFromBackend(){
 		ResultSet allObjects = sqlMan.mysqlquery(ObjectivesWrapper.getAllObjects());
 		if(allObjects == null) return;
 		try {
@@ -105,6 +102,6 @@ public class ObjectivesCache{
 				list.add(new ObjectiveObject(pId, name, displayName, criteria));
 				plotObjectives.put(pId, list);
 			}
-		} catch (SQLException e) {}
+		} catch (SQLException ignored) {}
 	}
 }

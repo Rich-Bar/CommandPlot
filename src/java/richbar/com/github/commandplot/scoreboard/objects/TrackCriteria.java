@@ -9,8 +9,8 @@ import richbar.com.github.commandplot.util.ArmorCalc;
 public class TrackCriteria{
 
 	private enum trackCriterias{
-		health, xp, level, food, air, armor;
-	}
+		health, xp, level, food, air, armor
+    }
 
 	public static int getValue(Player p, String criteriaName) {
 		switch(trackCriterias.valueOf(criteriaName.toLowerCase())){

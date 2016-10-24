@@ -1,9 +1,9 @@
 package richbar.com.github.commandplot.scoreboard.caching;
 
 import com.intellectualcrafters.plot.object.PlotId;
+
 import richbar.com.github.commandplot.caching.sql.SQLManager;
 import richbar.com.github.commandplot.scoreboard.ScoreboardCache;
-import richbar.com.github.commandplot.scoreboard.objects.ObjectiveObject;
 import richbar.com.github.commandplot.scoreboard.objects.TeamObject;
 
 import java.sql.ResultSet;
@@ -15,16 +15,17 @@ import java.util.UUID;
 
 public class ScoreCache {
 	
-	private Map<UUID, Map<String, Integer>> scores = new HashMap<>();
-	private SQLManager sqlMan;
+	private final Map<UUID, Map<String, Integer>> scores = new HashMap<>();
+	private final SQLManager sqlMan;
 	
-	public ScoreCache(SQLManager man) {
+	public ScoreCache(SQLManager man, ScoreboardCache cache) {
 		this.sqlMan = man;
 		create();
+		loadAllTeams(cache);
 		loadFromBackend();
 	}
 	
-	public void create(){
+	private void create(){
 		sqlMan.mysqlexecution(ScoreWrapper.getCreateTable());
 	}
 	
@@ -43,7 +44,7 @@ public class ScoreCache {
 				newScores.put(plotid + "|" + name, score);
 				scores.put(uuid, newScores);
 			}
-		} catch (SQLException e) {}
+		} catch (SQLException ignored) {}
 	}
 
 	/*TODO: Track and Statistic criteria
@@ -53,10 +54,7 @@ public class ScoreCache {
 			Player p = (Player) e;
 		}
 	}*/
-	
-	public void setScore(PlotId pId, UUID uuid, ObjectiveObject objective, int val){
-		setScore(pId, uuid, objective.name, val);
-	}
+
 	
 	public void setScore(PlotId pId, UUID uuid, String name, int val){
 		getAllScores(uuid).replace(pId.toString() +"|"+ name , val);
@@ -66,10 +64,6 @@ public class ScoreCache {
 	public void changeScore(PlotId pId, UUID uuid, String name, int by){
 		getAllScores(uuid).replace(pId.toString() +"|"+ name , getScore(pId, uuid, name) + by);
 		sqlMan.mysqlexecution(ScoreWrapper.getChangeSpecificScore(uuid, pId, name, by));
-	}
-	
-	public int getScore(PlotId pId, UUID uuid, ObjectiveObject objective){
-		return getScore(pId, uuid, objective.name);
 	}
 	
 	public int getScore(PlotId pId, UUID uuid, String name){
@@ -89,10 +83,6 @@ public class ScoreCache {
 		return map;
 	}
 	
-	public void removeScore(UUID uuid, PlotId pId, ObjectiveObject objective){
-		removeScore(uuid, pId, objective.name);
-	}
-	
 	public void removeScore(UUID uuid, PlotId pId, String name){
 		getAllScores(uuid).remove(pId.toString() +"|"+ name);
 		sqlMan.mysqlexecution(ScoreWrapper.getRemoveSpecificPlayerObjective(uuid, pId, name));
@@ -103,7 +93,16 @@ public class ScoreCache {
 		sqlMan.mysqlexecution(ScoreWrapper.getRemovePlayerObjectives(uuid));
 	}
 
-	public void loadAllTeams(ScoreboardCache cache){
+	public void removePlot(PlotId pId){
+		for(Map.Entry<UUID, Map<String, Integer>> p : scores.entrySet()){
+			for (Map.Entry<String, Integer> score : p.getValue().entrySet()){
+				if(score.getKey().contains(pId+ ""))
+				scores.get(p.getKey()).remove(score.getKey());
+			}
+		}
+	}
+
+	private void loadAllTeams(ScoreboardCache cache){
 		for(Map.Entry<UUID, Map<String, Integer>> p : scores.entrySet()){
 			for (Map.Entry<String, Integer> score : p.getValue().entrySet()){
 				if(score.getKey().startsWith("team.")){

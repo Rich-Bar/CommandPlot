@@ -8,16 +8,16 @@ import richbar.com.github.commandplot.scoreboard.caching.TeamCache;
 
 public class ScoreboardCache {
 
-	public TeamCache teams;
-	public ScoreCache scores;
-	public ObjectivesCache objectives;
-	public PlotChecker<?> checker;
+	public final TeamCache teams;
+	public final ScoreCache scores;
+	public final ObjectivesCache objectives;
+	public final PlotChecker<?> checker;
 	
 	public ScoreboardCache(SQLManager man, PlotChecker<?> checker) {
 		teams = new TeamCache(man);
-		scores = new ScoreCache(man);
+		scores = new ScoreCache(man, this);
 		objectives = new ObjectivesCache(man);
 		this.checker = checker;
 	}
-	
+
 }

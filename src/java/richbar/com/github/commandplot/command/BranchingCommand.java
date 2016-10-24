@@ -11,11 +11,11 @@ import java.util.Map;
 
 public class BranchingCommand extends Command implements CommandExecutor{
 
-	protected Map<String, CommandExecutor> subExecutors = new HashMap<>(); 
-	public FileConfiguration messages;
-	private String label;
+	protected final Map<String, CommandExecutor> subExecutors = new HashMap<>();
+	protected final FileConfiguration messages;
+	private final String label;
 
-	public BranchingCommand(FileConfiguration messages, String label) {
+	protected BranchingCommand(FileConfiguration messages, String label) {
 		super(label);
 		this.label = label;
 		this.messages = messages;

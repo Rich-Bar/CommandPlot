@@ -6,7 +6,7 @@ import richbar.com.github.commandplot.command.pipeline.MapChanger;
 
 public class ReloadFix extends org.bukkit.command.defaults.ReloadCommand{
 
-	MapChanger main;
+	private final MapChanger main;
 	
 	public ReloadFix(MapChanger main) {
 		super("reload");
@@ -18,7 +18,7 @@ public class ReloadFix extends org.bukkit.command.defaults.ReloadCommand{
 			String[] args) {
 		try {
 			main.undo();
-		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {}
+		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException ignored) {}
 		return super.execute(sender, currentAlias, args);
 	}
 }

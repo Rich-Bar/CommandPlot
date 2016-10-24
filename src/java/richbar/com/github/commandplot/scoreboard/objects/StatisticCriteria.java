@@ -1,7 +1,6 @@
 package richbar.com.github.commandplot.scoreboard.objects;
 
 import org.bukkit.Material;
-import org.bukkit.Statistic;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
@@ -19,12 +18,12 @@ public class StatisticCriteria{
 				@SuppressWarnings("deprecation")
 				EntityType eType = EntityType.fromName(value);
 				if(eType != null) 
-					return p.getStatistic((Statistic) StatisticLookup.valueOf(stat).getStatistic(), eType);
+					return p.getStatistic(StatisticLookup.valueOf(stat).getStatistic(), eType);
 				Material mType = Material.getMaterial(value);
 				if(mType != null) 
-					return p.getStatistic((Statistic) StatisticLookup.valueOf(stat).getStatistic(), mType);
+					return p.getStatistic(StatisticLookup.valueOf(stat).getStatistic(), mType);
 			}
-			return p.getStatistic((Statistic) StatisticLookup.valueOf(stat).getStatistic());
+			return p.getStatistic(StatisticLookup.valueOf(stat).getStatistic());
 		
 		
 		}else if(criteriaName.startsWith("achievement.")){

@@ -2,6 +2,7 @@ package richbar.com.github.commandplot;
 
 import com.intellectualcrafters.plot.object.Plot;
 import com.intellectualcrafters.plot.object.PlotId;
+
 import org.bukkit.Location;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.Command;
@@ -10,6 +11,7 @@ import org.bukkit.craftbukkit.v1_10_R1.command.VanillaCommandWrapper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.minecart.CommandMinecart;
+
 import richbar.com.github.commandplot.api.PlotChecker;
 import richbar.com.github.commandplot.caching.objects.PlotObject;
 import richbar.com.github.commandplot.command.Commands;
@@ -18,6 +20,7 @@ import richbar.com.github.commandplot.command.ExecuteSender;
 import richbar.com.github.commandplot.command.TestForSender;
 import richbar.com.github.commandplot.command.pipeline.SimpleCommandManager;
 import richbar.com.github.commandplot.util.IsLocation;
+import richbar.com.github.commandplot.util.Util;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -26,9 +29,10 @@ public class CommandManager extends SimpleCommandManager{
 
 	
 	
-	private CPlugin main;
-	private PlotChecker<?> checker;
-	public CommandManager(CPlugin cPlugin, Command c) {
+	private final CPlugin main;
+	private final PlotChecker<?> checker;
+
+	CommandManager(CPlugin cPlugin, Command c) {
 		super(c);
 		main = cPlugin;
 		checker = main.check;
@@ -53,7 +57,7 @@ public class CommandManager extends SimpleCommandManager{
         	return onVanilla(sender, label, args);
         }
 		
-		Logger.getGlobal().warning(label + Arrays.toString(args));
+		if(main.isDebug()) Logger.getGlobal().warning(label + Arrays.toString(args));
 		Plot plot = ((Plot)checker.getPlot(blockpos));
 
 		if(!main.getWhitelist().contains(label.toLowerCase()) || plot == null) return false;
@@ -62,7 +66,7 @@ public class CommandManager extends SimpleCommandManager{
 		PlotId pId = plot.getId();
 
 		if(!(checker.canRun(blockpos) || main.activePlots.contains(new PlotObject(pId)))){
-			sender.sendMessage("no Plotmember in plot nor always active!");
+			sender.sendMessage("no Plotmember in plot nor is plot always active!");
 			return false;
 		}
 		
@@ -97,19 +101,19 @@ public class CommandManager extends SimpleCommandManager{
     							args = new String[]{args[0], args[1], args[2], tmp, args[3]};
     						else
     							args = new String[]{args[0], args[1], args[2], tmp};
-    					
+
     					}else if(commandType.ordinal() == Commands.SPREADPLAYERS.ordinal()){
-    						if(i <= 2) 
+    						if(i <= 2)
     							try{
-    								if(Integer.parseInt(args[commandType.getIndex(i)]) > 256) 
+    								if(Integer.parseInt(args[commandType.getIndex(i)]) > 256)
     									invalidArgs.add(commandType.getIndex(i) + "");
 	    						}catch(NumberFormatException nfe){
 									invalidArgs.add(commandType.getIndex(i) + "");
 	    						}
     					}
     					break;
-    					
-    					
+
+
 					case MOB:
 						String[] blacklistedMobs = {"PrimedTnt", "Endermite", "Silverfish", "Ghast", "Enderman", "Blaze", "WitherBoss", "EnderDragon", "FallingSand", "ShulkerBullet"};
 						String requested = args[commandType.getIndex(i)];
@@ -117,21 +121,21 @@ public class CommandManager extends SimpleCommandManager{
 						for(String blackMob : blacklistedMobs)
 							if(blackMob.equals(requested)) invalidArgs.add(commandType.getIndex(i)+ "");
 						break;
-						
-						
+
+
 					case PLAYER:
-						Player player = getPlayer(args[commandType.getIndex(i)]);
+						Player player = Util.getPlayer(args[commandType.getIndex(i)]);
 						artifacts.add(player);
 						if(player == null) invalidArgs.add(commandType.getIndex(i)+ "");
 						else if(!checker.isSamePlot(blockpos, player.getLocation())) invalidArgs.add(commandType.getIndex(i)+ "");
 						break;
-						
+
 					case ENTITYorCOORD:
 					case ENTITY:
-						Map<UUID, Object> uuidSet = getUUIDset(blockpos.getWorld().getEntities().toArray());
+						Map<UUID, Object> uuidSet = Util.getUUIDset(blockpos.getWorld().getEntities().toArray());
  						Object e  = uuidSet.get(args[commandType.getIndex(i)]);
 						if(e == null){
-							e = getPlayer(args[commandType.getIndex(i)]);
+							e = Util.getPlayer(args[commandType.getIndex(i)]);
 							if(e == null){
 								invalidArgs.add(commandType.getIndex(i)+ "");
 								break;
@@ -141,34 +145,34 @@ public class CommandManager extends SimpleCommandManager{
  						artifacts.add(e);
 						if(!checker.isSamePlot(blockpos, loca)) invalidArgs.add(commandType.getIndex(i)+ "");
 						break;
-						
-						
+
+
 					case COORDS:
-						int indeX = commandType.getIndex(i), 
+						int indeX = commandType.getIndex(i),
 						indeY = indeX +1,
 						indeZ = indeY +1;
-						
+
 						IsLocation nLoc;
 						if(commandType.ordinal() == Commands.TPCOORD.ordinal())
 							nLoc = new IsLocation(((Player) artifacts.get(0)).getLocation(), args[indeX], args[indeY], args[indeZ]);
 						else
 							nLoc = new IsLocation(blockpos, args[indeX], args[indeY], args[indeZ]);
 						artifacts.add(nLoc);
-						
-						if(!checker.isSamePlot(blockpos, nLoc)) 
+
+						if(!checker.isSamePlot(blockpos, nLoc))
 							invalidArgs.add(indeX + "");
-						
+
 						if(commandType.ordinal() == Commands.CLONE.ordinal()){
 							prev = i == 0? nLoc : prev.subtract(nLoc.getX(), nLoc.getY(), nLoc.getZ());
 						}
 						break;
-						
-						
+
+
 					case DCOORDS:
 						indeX = commandType.getIndex(i);
 						indeY = indeX +1;
 						indeZ = indeY +1;
-						
+
 						if(commandType.ordinal() == Commands.SPREADPLAYERS.ordinal()){
 							nLoc = new IsLocation(blockpos, args[indeX], "64", args[indeY]);
 						}else if(commandType.ordinal() == Commands.EXECUTE.ordinal()){
@@ -176,23 +180,23 @@ public class CommandManager extends SimpleCommandManager{
 							if(p != null)nLoc = new IsLocation(p.getLocation(), args[indeX], args[indeY], args[indeZ]);
 							else break;
 						}else nLoc = new IsLocation(blockpos, args[indeX], args[indeY], args[indeZ]);
-							
-						
+
+
 						artifacts.add(nLoc);
-						
+
 						if(commandType.ordinal() == Commands.CLONE.ordinal()){
 							if(	!checker.isSamePlot(blockpos, nLoc) ||
 								!checker.isSamePlot(nLoc, nLoc.add(prev.getX(), prev.getY(), prev.getZ())))
 									invalidArgs.add(indeX + "");
-	
+
 						}else if(commandType.ordinal() == Commands.PARTICLE.ordinal()){
 							if(nLoc.getX() > 16) args[indeX] = 16 + "";
 							if(nLoc.getY() > 16) args[indeY] = 16 + "";
 							if(nLoc.getZ() > 16) args[indeZ] = 16 + "";
 						}
 						break;
-						
-						
+
+
 					case COMMAND:
 						String detect = args[commandType.getIndex(i)];
 						boolean hasDetect = false;
@@ -200,11 +204,11 @@ public class CommandManager extends SimpleCommandManager{
 							//TODO: Detect
 							hasDetect = true;
 						}
-						
+
 						IsLocation artLoc = (IsLocation) artifacts.get(1);
 						if(args.length < 10) hasDetect = false;
 						Command newCommand = main.getCommand(args[hasDetect? 10 : 4]);
-						
+
 						if(newCommand == null){
 							invalidArgs.add(detect);
 							return false;
@@ -213,14 +217,14 @@ public class CommandManager extends SimpleCommandManager{
 							invalidArgs.add("Invalid Location");
 							return false;
 						}
-						
+
 						sender = new ExecuteSender(sender, artLoc.clone());
-						
+
 						if(	!main.getWhitelist().contains(newCommand.getLabel().toLowerCase()) ||
 							!checker.canRun(artLoc.clone())) return false;
 						return execute(sender, detect, Arrays.copyOfRange(args, 5, args.length));
-						
-						
+
+
 					case MAX1:
 						double dm1 = Double.parseDouble(args[commandType.getIndex(i)]);
 						if(dm1 > 1.00) dm1 = 1.00;
@@ -228,8 +232,8 @@ public class CommandManager extends SimpleCommandManager{
 						args[commandType.getIndex(i)] = dm1 +"";
 						artifacts.add(dm1);
 						break;
-						
-						
+
+
 					case MAX2:
 						double dm2 = Double.parseDouble(args[commandType.getIndex(i)]);
 						if(dm2 > 2.00) dm2 = 2.00;
@@ -237,7 +241,7 @@ public class CommandManager extends SimpleCommandManager{
 						args[commandType.getIndex(i)] = dm2 +"";
 						artifacts.add(dm2);
 					default:break;
-					
+
 				}
     			i++;
     		}
@@ -265,7 +269,7 @@ public class CommandManager extends SimpleCommandManager{
     	}
     }
 	
-	public boolean onVanilla(CommandSender sender, String label, String... args)
+	private boolean onVanilla(CommandSender sender, String label, String... args)
 	{		
     	try{
     		Commands commandType = Commands.valueOf(label.toUpperCase());
@@ -274,18 +278,5 @@ public class CommandManager extends SimpleCommandManager{
     	}catch(IllegalArgumentException|NullPointerException exc){
     		return false;
     	}
-	}
-
-	public Player getPlayer(String name){
-		return main.getServer().getPlayer(name);
-	}
-	
-	public static Map<UUID, Object> getUUIDset(Object... es){
-		Map<UUID, Object> res = new HashMap<>();
-		for(Object e : es){
-			if(e instanceof Entity)res.put(((Entity) e).getUniqueId(), e);
-			else if(e instanceof Player)res.put(((Player) e).getUniqueId(), e);
-		}
-		return res;
 	}
 }

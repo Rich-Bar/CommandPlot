@@ -40,7 +40,7 @@ public enum AchievementLookup {
 	achievement_theEnd(Achievement.END_PORTAL),
 	achievement_theEnd2(Achievement.THE_END);
 	
-	private Achievement result;
+	private final Achievement result;
 	AchievementLookup(Achievement result){
 		this.result = result;
 	}

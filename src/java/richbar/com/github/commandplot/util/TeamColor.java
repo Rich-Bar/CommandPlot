@@ -1,8 +1,5 @@
 package richbar.com.github.commandplot.util;
 
-/**
- * Created by Rich Y on 07.09.2016.
- */
 public enum TeamColor {
     BLACK(0),
     DARKBLUE(1),
@@ -22,7 +19,7 @@ public enum TeamColor {
     WHITE(15, "f"),
     NONE(-1);
 
-    int i;
+    final int i;
     String h = "";
     TeamColor(int index){
         h += i = index;

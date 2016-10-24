@@ -8,10 +8,10 @@ import org.bukkit.plugin.Plugin;
  
 public class CustomConfig {
        
-        private String configName;
+        private final String configName;
         private File configFile;
         private FileConfiguration config;
-        private Plugin plugin;
+        private final Plugin plugin;
        
         public CustomConfig(Plugin plugin, String configName) {
                 this.plugin = plugin;
@@ -20,7 +20,7 @@ public class CustomConfig {
         }
        
        
-        public File getConfigFile() {
+        private File getConfigFile() {
                 return this.configFile;
         }
        
@@ -29,28 +29,23 @@ public class CustomConfig {
         }
        
         public boolean doesConfigExist() {
-                if(getConfigFile() == null) {
-                        return false;
-                }
-                return getConfigFile().exists();
+                return getConfigFile() != null && getConfigFile().exists();
         }
        
        
-        public boolean createIfNoExist() {
+        private void createIfNoExist() {
                 configFile = new File(this.plugin.getDataFolder(), this.configName.replace("/", File.separator));
                 if(!this.configFile.exists()) {
                         if(this.plugin.getResource(configName) != null) {
                                 this.plugin.saveResource(configName, false);
                         }
                         reloadConfig();
-                        return true;
                 }
                 reloadConfig();
-                return false;
         }
        
        
-        public void reloadConfig() {
+        private void reloadConfig() {
                 this.configFile = new File(this.plugin.getDataFolder(), this.configName);
                 this.config = YamlConfiguration.loadConfiguration(this.configFile);
         }
@@ -59,7 +54,8 @@ public class CustomConfig {
                 if(config != null && configFile != null) {
                         try {
                                 config.save(configFile);
-                        } catch (Exception ex) {}
+                                return true;
+                        } catch (Exception ignored) {}
                 }
                 return false;
         }

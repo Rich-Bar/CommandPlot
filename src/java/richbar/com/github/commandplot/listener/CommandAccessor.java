@@ -19,18 +19,18 @@ import richbar.com.github.commandplot.caching.objects.UUIDObject;
 
 public class CommandAccessor implements Listener {
 
-	private CommandBlockMode cbMode;
-	private CPlugin main;
+	private final CommandBlockMode cbMode;
+	private final CPlugin main;
 	
 	public CommandAccessor(CPlugin main, CommandBlockMode cbMode) {
 		this.cbMode = cbMode;
 		this.main = main;
 	}
-	
-	List<String> whitelist = Arrays.asList(new String[]{"commandblockmode", "cbm", "commandblock", "cb"});
+
+	private final List<String> whitelist = Arrays.asList("commandblockmode", "cbm", "commandblock", "cb");
 	
 	@EventHandler
-	public void preCommand(PlayerCommandPreprocessEvent e) throws SQLException{
+	public void preCommand(PlayerCommandPreprocessEvent e){
 		Player p = e.getPlayer();
 		String[] args = e.getMessage().replace("/", "").split(" ");
 		String cmd = args[0];
@@ -50,7 +50,7 @@ public class CommandAccessor implements Listener {
 	}
 	
 	@EventHandler
-	public void onWorldSwitch(PlayerChangedWorldEvent e) throws SQLException{
+	public void onWorldSwitch(PlayerChangedWorldEvent e){
 		Player p = e.getPlayer();
 		p.sendMessage(main.messages.getString("cbm-auto-disable"));
 		cbMode.remove(new UUIDObject(p.getUniqueId()));

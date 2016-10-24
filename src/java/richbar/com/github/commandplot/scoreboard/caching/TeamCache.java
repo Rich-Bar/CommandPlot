@@ -7,16 +7,13 @@ import richbar.com.github.commandplot.util.TeamColor;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class TeamCache{
 
-	private Map<PlotId, List<TeamObject>> teams = new HashMap<>();
+	private final Map<PlotId, List<TeamObject>> teams = new HashMap<>();
 	
-	private SQLManager sqlMan;
+	private final SQLManager sqlMan;
 
 	public TeamCache(SQLManager man) {
 		this.sqlMan = man;
@@ -40,14 +37,14 @@ public class TeamCache{
 				List<TeamObject> list = teams.get(pId);
 				list.add(new TeamObject(pId, name, displayname, TeamColor.getColor(color), settings));
 			}
-		} catch (SQLException e) {}
+		} catch (SQLException ignored) {}
 	}
 	
 	public void addTeam(PlotId pId, TeamObject team){
 		List<TeamObject> oldTeams = getAllTeams(pId);
 		oldTeams.add(team);
 		teams.put(pId, oldTeams);
-		sqlMan.mysqlexecution(TeamWrapper.getAddObject(pId, team.name, team.displayName, team.color.getIndex(), TeamWrapper.getSettingsInt(team.allowFriendlyFire, team.collisionOwnTeam, team.collissionOtherTeams, team.deathMessageOtherTeams, team.deathMessageOwnTeam, team.nameTagsOtherTeam, team.nameTagsOwnTeam, team.SeeFriendlyInvisibles)));
+		sqlMan.mysqlexecution(TeamWrapper.getAddObject(pId, team.name, team.displayName, team.color.getIndex(), TeamWrapper.getSettingsInt(team.allowFriendlyFire, team.collisionOwnTeam, team.collisionOtherTeams, team.deathMessageOtherTeams, team.deathMessageOwnTeam, team.nameTagsOtherTeam, team.nameTagsOwnTeam, team.SeeFriendlyInvisibles)));
 	}
 	
 	public List<TeamObject> getAllTeams(PlotId pId){
@@ -61,21 +58,21 @@ public class TeamCache{
 	
 	public TeamObject getTeam(PlotId pId, String name){
 		for(TeamObject obj : getAllTeams(pId)){
-			if(obj.name == name) return obj;
+			if(Objects.equals(obj.name, name)) return obj;
 		}
 		return null;
 	}
 	
 	public boolean containsTeam(PlotId pId, String name){
 		for(TeamObject obj : getAllTeams(pId)){
-			if(obj.name == name) return true;
+			if(Objects.equals(obj.name, name)) return true;
 		}
 		return false;
 	}
 	
 	public void removeTeam(PlotId pId, String name){
 		for(TeamObject obj : getAllTeams(pId)){
-			if(obj.name == name) teams.get(pId).remove(obj);
+			if(Objects.equals(obj.name, name)) teams.get(pId).remove(obj);
 		}
 		sqlMan.mysqlexecution(TeamWrapper.getRemoveTeam(pId, name));
 	}
@@ -85,7 +82,7 @@ public class TeamCache{
 		sqlMan.mysqlexecution(TeamWrapper.getRemovePlotTeams(pId));
 	}
 	
-	public void create(){
+	private void create(){
 		sqlMan.mysqlexecution(TeamWrapper.getCreateTable());
 	}
 }

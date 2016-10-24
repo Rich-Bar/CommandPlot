@@ -8,10 +8,7 @@ public class ArmorCalc {
 
 	public static double getArmor(Player player){
 		 org.bukkit.inventory.PlayerInventory inv = player.getInventory();
-         ItemStack helmet = null;
-         ItemStack boots = null;
-         ItemStack chest = null;
-         ItemStack pants = null;
+         ItemStack helmet, boots, chest, pants;
          double red = 0.0;
 
          if(inv.getBoots() != null){

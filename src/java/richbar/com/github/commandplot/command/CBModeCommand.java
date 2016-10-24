@@ -13,8 +13,8 @@ import richbar.com.github.commandplot.caching.objects.UUIDObject;
 
 public class CBModeCommand implements CommandExecutor{
 
-	CommandBlockMode cbMode;
-	private CPlugin main;
+	private final CommandBlockMode cbMode;
+	private final CPlugin main;
 	
 	
 	public CBModeCommand(CPlugin main, CommandBlockMode cbMode) {

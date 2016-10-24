@@ -17,10 +17,7 @@ public class PlayerSQLWrapper extends SQLWrapper{
 		return 38;
 	}
 
-	@Override 
-	/*
-		TODO: add Primary functionality!
-	*/  
+	@Override
 	public boolean hasPrimary() {
 		return false;
 	}

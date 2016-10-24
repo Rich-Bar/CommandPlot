@@ -13,7 +13,9 @@ always-active-off: You've disabled always-active mode for this plot!
 
 subcommands: Valid subcommands are:
 players_list: Plot Players:
+player_scores: Player Scores:
 objectives_list: Plot Objectives:
+objective_info: Plot Objectives:
 teams_list: Plot Teams:
 
 no-team-found: Could not find team!

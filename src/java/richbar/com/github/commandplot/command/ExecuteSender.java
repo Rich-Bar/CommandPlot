@@ -12,8 +12,8 @@ import org.bukkit.plugin.Plugin;
 
 public class ExecuteSender implements CommandSender{
 
-	private CommandSender sender;
-	private Location location;
+	private final CommandSender sender;
+	private final Location location;
 	public ExecuteSender(CommandSender origSender, Location loc) {
 		location = loc;
 		sender = origSender;

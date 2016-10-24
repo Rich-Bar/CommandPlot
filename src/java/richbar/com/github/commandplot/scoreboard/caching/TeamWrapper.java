@@ -4,31 +4,31 @@ import com.intellectualcrafters.plot.object.PlotId;
 
 public class TeamWrapper{
 
-	public static String getTableName() {
-		return null;
+	private static String getTableName() {
+		return "`%SCHEMA%`.`teams`";
 	}
 	
-	public static String getCreateTable(){
+	static String getCreateTable(){
 		return "CREATE TABLE "+ getTableName() +" (`id` INT NOT NULL AUTO_INCREMENT, `plotid` VARCHAR(13) NOT NULL, `name` VARCHAR(32) NOT NULL, `displayname` VARCHAR(32) NOT NULL, `color` INT NOT NULL, `settings` INT NULL, PRIMARY KEY (`id`));";
 	}
 	
-	public static String getAddObject(PlotId pId, String name, String displayName, int color, int settingsByte){
+	static String getAddObject(PlotId pId, String name, String displayName, int color, int settingsByte){
 		return "INSERT INTO "+ getTableName() +" (`plotid`, `name`, `displayname`, `color`, `settings`) VALUES ('"+ pId.toString() +"', '"+ name +"', '"+ displayName +"', '"+ color +"', )";
 	}
 	
-	public static String getRemovePlotTeams(PlotId pId){
+	static String getRemovePlotTeams(PlotId pId){
 		return "DELETE FROM "+ getTableName() +" WHERE `plotid` = '"+ pId.toString() +"'";
 	}
 
-	public static String getRemoveTeam(PlotId pId, String name){
+	static String getRemoveTeam(PlotId pId, String name){
 		return "DELETE FROM "+ getTableName() +" WHERE `plotid` = '"+ pId.toString() +"' AND `name` = '" + name + "'";
 	}
 
-	public static String getAllTeams(){
+	static String getAllTeams(){
 		return "SELECT * FROM " + getTableName();
 	}
 	
-	public static int getSettingsInt(boolean... bs){
+	static int getSettingsInt(boolean... bs){
 		int res = 0, fact = 0;
 		for(boolean b : bs){
 			res += b? Math.pow(2, fact) : 0;

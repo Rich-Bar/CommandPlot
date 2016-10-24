@@ -11,8 +11,11 @@ import org.bukkit.plugin.Plugin;
 
 public class SQLManager {
 	
-	String sqlHost, sqlSchema, sqlUser, sqlPassword;
-	Logger logger;
+	private String sqlHost;
+	private final String sqlSchema;
+	private final String sqlUser;
+	private final String sqlPassword;
+	private final Logger logger;
 	
 	public SQLManager(Plugin plugin, String host, String schema, String user, String password) {
 		logger = plugin.getLogger();

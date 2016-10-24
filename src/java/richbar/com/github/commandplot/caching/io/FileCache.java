@@ -13,12 +13,12 @@ import richbar.com.github.commandplot.caching.CacheObject;
 
 public class FileCache<T> implements CacheBackend<T>{
 
-	List<String> localCache = new ArrayList<String>();
-	
-	FileConfiguration cacheFile;
-	File ioFile;
-	
-	String sub;
+	private List<String> localCache = new ArrayList<>();
+
+	private final FileConfiguration cacheFile;
+	private final File ioFile;
+
+	private final String sub;
 	
 	public FileCache(File fileLoc, String subSector) {
 		ioFile = fileLoc;

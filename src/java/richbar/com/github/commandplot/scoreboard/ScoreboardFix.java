@@ -3,35 +3,31 @@ package richbar.com.github.commandplot.scoreboard;
 import com.intellectualcrafters.plot.object.Plot;
 import com.intellectualcrafters.plot.object.PlotId;
 import com.intellectualcrafters.plot.object.PlotPlayer;
-import net.minecraft.server.v1_10_R1.MojangsonParseException;
-import net.minecraft.server.v1_10_R1.MojangsonParser;
-import net.minecraft.server.v1_10_R1.NBTTagCompound;
+
+import net.minecraft.server.v1_10_R1.*;
+
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.craftbukkit.v1_10_R1.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.minecart.CommandMinecart;
+
 import richbar.com.github.commandplot.command.BranchingCommand;
-import richbar.com.github.commandplot.command.ExecuteSender;
 import richbar.com.github.commandplot.scoreboard.objects.ObjectiveObject;
 import richbar.com.github.commandplot.scoreboard.objects.TeamObject;
 import richbar.com.github.commandplot.scoreboard.visible.VisibleScoreboard;
 import richbar.com.github.commandplot.util.TeamColor;
+import richbar.com.github.commandplot.util.Util;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class ScoreboardFix extends BranchingCommand{
 
-	private ScoreboardCache cache;
+	private final ScoreboardCache cache;
 
 	public ScoreboardFix(FileConfiguration messages, ScoreboardCache cache) {
 		super(messages, "scoreboard");
@@ -42,15 +38,15 @@ public class ScoreboardFix extends BranchingCommand{
 	}
 	
 	private class ScoreboardPlayers extends BranchingCommand{
-		public List<String> sub = Arrays.asList("list", "set", "add", "remove", "operation", "reset", "enable", "test", "tag");
+		final List<String> sub = Arrays.asList("list", "set", "add", "remove", "operation", "reset", "enable", "test", "tag");
 		
-		public ScoreboardPlayers(FileConfiguration messages) {
+		ScoreboardPlayers(FileConfiguration messages) {
 			super(messages, "scoreboard");
 		}
 		
 		@Override
 		public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-			Location loc = getSenderLoc(sender);
+			Location loc = Util.getSenderLoc(sender);
 			Location entityLoc;
 			Entity e;
 
@@ -60,35 +56,50 @@ public class ScoreboardFix extends BranchingCommand{
 			}
 			switch(sub.indexOf(args[0])){
 				case 0:
-					//TODO: list objectives of certain player (args[1])
-					List<String> names = new ArrayList<>();
-					for(UUID uuid : cache.scores.getAllPlayers()){
-						names.add(Bukkit.getPlayer(uuid).getName());
+					//TEST: list objectives of certain player (args[1])
+					if(args.length > 1){
+						Player p = Util.getPlayer(args[1]);
+						if(p == null) return false;
+						Map<String, Integer> allScores = cache.scores.getAllScores(p.getUniqueId());
+						List<String> plainScores = new ArrayList<>();
+						for(Map.Entry score : allScores.entrySet()){
+							plainScores.add(score.getKey() + " = " + score.getValue());
+						}
+						sender.sendMessage(messages.getString("player_scores") + " " + String.join(", ", plainScores));
+						return true;
+					}else{
+						List<String> names = new ArrayList<>();
+						for (UUID uuid : cache.scores.getAllPlayers()) {
+							names.add(Bukkit.getPlayer(uuid).getName());
+						}
+						sender.sendMessage(messages.getString("players_list") + " " + String.join(", ", names));
+						return true;
 					}
-					sender.sendMessage(messages.getString("players_list") + " " + String.join(", ", names));
-					return true;
 				case 1:
-					e = getEntity(loc.getWorld(), UUID.fromString(args[1]));
+					e = Util.getEntity(loc.getWorld(), UUID.fromString(args[1]));
+					if(e==null) e = Util.getPlayer(args[1]);
 					if(e==null) return false;
 					entityLoc = e.getLocation();
 
 					if(args.length < 4 || !cache.checker.isSamePlot(loc, entityLoc)) return false;
-					if(args.length == 5 && !checkNBT(e, args[4])) return false;
+					if(args.length == 5 && !Util.checkNBT(e, args[4])) return false;
 
 					cache.scores.setScore(((Plot)cache.checker.getPlot(loc)).getId(), e.getUniqueId(), args[2], Integer.parseInt(args[3]));
 					return true;
 				case 2:
-					e = getEntity(loc.getWorld(), UUID.fromString(args[1]));
+					e = Util.getEntity(loc.getWorld(), UUID.fromString(args[1]));
+					if(e==null) e = Util.getPlayer(args[1]);
 					if(e==null) return false;
 					entityLoc = e.getLocation();
 
 					if(args.length < 4 || !cache.checker.isSamePlot(loc, entityLoc)) return false;
-					if(args.length == 5 && !checkNBT(e, args[4])) return false;
+					if(args.length == 5 && !Util.checkNBT(e, args[4])) return false;
 
 					cache.scores.changeScore(((Plot)cache.checker.getPlot(loc)).getId(), e.getUniqueId(), args[2], Integer.parseInt(args[3]));
 					return true;
 				case 3:
-					e = getEntity(loc.getWorld(),UUID.fromString(args[1]));
+					e = Util.getEntity(loc.getWorld(),UUID.fromString(args[1]));
+					if(e==null) e = Util.getPlayer(args[1]);
 					if(e==null) return false;
 					entityLoc = e.getLocation();
 
@@ -101,8 +112,12 @@ public class ScoreboardFix extends BranchingCommand{
 						}
 					}return false;
 				case 4:
-					Entity e1 = getEntity(loc.getWorld(),UUID.fromString(args[1]));
-					Entity e2 = getEntity(loc.getWorld(),UUID.fromString(args[4]));
+					Entity e1 = Util.getEntity(loc.getWorld(),UUID.fromString(args[1]));
+					Entity e2 = Util.getEntity(loc.getWorld(),UUID.fromString(args[4]));
+					if(e1==null) e1 = Util.getPlayer(args[1]);
+					if(e1==null) return false;
+					if(e2==null) e2 = Util.getPlayer(args[4]);
+					if(e2==null) return false;
 					Location loc1 = e1.getLocation();
 					Location loc2 = e2.getLocation();
 
@@ -122,7 +137,8 @@ public class ScoreboardFix extends BranchingCommand{
 					default: return false;
 					}
 				case 5:
-					e = getEntity(loc.getWorld(),UUID.fromString(args[1]));
+					e = Util.getEntity(loc.getWorld(),UUID.fromString(args[1]));
+					if(e==null) e = Util.getPlayer(args[1]);
 					if(e==null) return false;
 					entityLoc = e.getLocation();
 					if(!cache.checker.isSamePlot(loc, entityLoc)) return false;
@@ -134,7 +150,8 @@ public class ScoreboardFix extends BranchingCommand{
 					//TODO: add to trigger list
 					return false;
 				case 7:
-					e = getEntity(loc.getWorld(),UUID.fromString(args[1]));
+					e = Util.getEntity(loc.getWorld(),UUID.fromString(args[1]));
+					if(e==null) e = Util.getPlayer(args[1]);
 					if(e==null) return false;
 					entityLoc = e.getLocation();
 					if(!cache.checker.isSamePlot(loc, entityLoc)) return false;
@@ -151,7 +168,7 @@ public class ScoreboardFix extends BranchingCommand{
 	}
 	
 	private class ScoreboardObjectives extends BranchingCommand{
-		List<String> sub = Arrays.asList("list", "setdisplay", "remove", "add");
+		final List<String> sub = Arrays.asList("list", "setdisplay", "remove", "add");
 		
 		ScoreboardObjectives(FileConfiguration messages) {
 			super(messages, "scoreboard");
@@ -159,7 +176,7 @@ public class ScoreboardFix extends BranchingCommand{
 		
 		@Override
 		public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-			Plot plot = ((Plot)cache.checker.getPlot(getSenderLoc(sender)));
+			Plot plot = ((Plot)cache.checker.getPlot(Util.getSenderLoc(sender)));
 
 			if(sender instanceof Player) {
 				if (!(plot.getMembers().contains(((Player) sender).getUniqueId())))
@@ -167,13 +184,21 @@ public class ScoreboardFix extends BranchingCommand{
 			}
 			switch(sub.indexOf(args[0])){
 				case 0:
-					//TODO: SHOW OBJECTIVE INFO
-					List<String> names = new ArrayList<>();
-					for(ObjectiveObject obj : cache.objectives.getAllObjectives(plot.getId())){
-						names.add(obj.name +"("+ obj.displayName +", "+ obj.criteria + ")");
+					//TEST: SHOW OBJECTIVE INFO
+					if(args.length > 1){
+						ObjectiveObject obj = cache.objectives.getObjectiveByName(plot.getId(), args[1]);
+						if(obj == null) return false;
+						String objInfo = obj.id + ": " + obj.name + "[" + obj.displayName + "] - " + obj.criteria;
+						sender.sendMessage(messages.getString("objective_info") + " " + objInfo);
+						return true;
+					}else {
+						List<String> names = new ArrayList<>();
+						for (ObjectiveObject obj : cache.objectives.getAllObjectives(plot.getId())) {
+							names.add(obj.name + "(" + obj.displayName + ", " + obj.criteria + ")");
+						}
+						sender.sendMessage(messages.getString("players_list") + " " + String.join(", ", names));
+						return true;
 					}
-					sender.sendMessage(messages.getString("players_list") + " " + String.join(", ", names));
-					return true;
 				case 1:
 					//TODO: VISIBLE SCOREBOARD
 					switch(args[1].lastIndexOf(".") == 12?args[1].substring(0, 12).toLowerCase() : args[1].toLowerCase()){
@@ -202,19 +227,16 @@ public class ScoreboardFix extends BranchingCommand{
 	}
 
 	private class ScoreboardTeams extends BranchingCommand{
-		public List<String> sub = Arrays.asList("list", "add", "remove", "empty", "join", "leave", "option");
+		final List<String> sub = Arrays.asList("list", "add", "remove", "empty", "join", "leave", "option");
 		
-		public ScoreboardTeams(FileConfiguration messages) {
+		ScoreboardTeams(FileConfiguration messages) {
 			super(messages, "scoreboard");
 		}
 		
 		@Override
 		public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-			Plot plot = ((Plot)cache.checker.getPlot(getSenderLoc(sender)));
-			Location loc = getSenderLoc(sender);
+			Plot plot = ((Plot)cache.checker.getPlot(Util.getSenderLoc(sender)));
 			TeamObject team;
-			Location entityLoc;
-			Entity e;
 
 			if(sender instanceof Player) {
 				if (!(plot.getMembers().contains(((Player) sender).getUniqueId())))
@@ -222,14 +244,35 @@ public class ScoreboardFix extends BranchingCommand{
 			}
 			switch(sub.indexOf(args[0])){
 				case 0:
-					//TODO: LIST ATTRIBUTES OF TEAM
-					int i = 0;
-					List<String> names = new ArrayList<>();
-					for(TeamObject obj : cache.teams.getAllTeams(plot.getId())){
-						names.add(i + ": " + obj.name +"("+ obj.displayName +")");
+					//TEST: LIST ATTRIBUTES OF TEAM
+					if(args.length > 1){
+						team = cache.teams.getTeam(plot.getId(), args[1]);
+						if(team == null) return false;
+						String teamTitle = plot.getId() + ": " + team.name + " / " + ChatColor.translateAlternateColorCodes('&', "&" + team.color.getIndex() + team.displayName) + ":";
+						String teamData = "";
+						teamData += team.nameTagsOwnTeam && team.nameTagsOtherTeam? "Nametags: both, " :
+									team.nameTagsOwnTeam? "Nametags: own Team, " :
+									team.nameTagsOtherTeam? "Nametags: other Team, " : "Nametags: none, ";
+						teamData += team.collisionOwnTeam && team.collisionOtherTeams ? "Collision: both, " :
+									team.collisionOwnTeam? "Collision: own Team, " :
+									team.collisionOtherTeams ? "Collision: other Team, " : "Collision: none, ";
+						teamData += team.deathMessageOwnTeam && team.deathMessageOtherTeams? "Deathmessage: both, " :
+									team.deathMessageOwnTeam? "Deathmessage: own Team, " :
+									team.deathMessageOtherTeams? "Deathmessage: other Team, " : "Deathmessage: none, ";
+						teamData += team.allowFriendlyFire? "Friendly Fire: enabled, " : "Friendly Fire: disabled, ";
+						teamData += team.SeeFriendlyInvisibles? "See Friendly Invisibles: enabled" : "See Friendly Invisibles: disabled";
+						sender.sendMessage(teamTitle);
+						sender.sendMessage(teamData);
+						return true;
+					}else {
+						int i = 0;
+						List<String> names = new ArrayList<>();
+						for (TeamObject obj : cache.teams.getAllTeams(plot.getId())) {
+							names.add(i + ": " + obj.name + "(" + obj.displayName + ")");
+						}
+						sender.sendMessage(messages.getString("teams_list") + " " + String.join(", ", names));
+						return true;
 					}
-					sender.sendMessage(messages.getString("teams_list") + " " + String.join(", ", names));
-					return true;
 				case 1:
 					if(args.length < 3) return false;
 					cache.teams.addTeam(plot.getId(), new TeamObject(plot.getId(), args[1], args.length == 2? args[1] : args[2], TeamColor.NONE, 0));
@@ -256,69 +299,68 @@ public class ScoreboardFix extends BranchingCommand{
 							cache.scores.setScore(plot.getId(), ((Player) sender).getUniqueId(), "team." + plot.getId(), Integer.parseInt(args[1]));
 							team.members.add(((Player) sender).getUniqueId());
 						} else if (args.length == 3) {
-							cache.scores.setScore(plot.getId(), UUID.fromString(args[2]), "team." + plot.getId(), Integer.parseInt(args[1]));
-							team.members.add(UUID.fromString(args[2]));
+							if(args[2].equals("*")) sender.sendMessage("Please Use @a instead of '*'");
+							cache.scores.setScore(plot.getId(), Util.getPlayer(args[2]).getUniqueId(), "team." + plot.getId(), Integer.parseInt(args[1]));
+							team.members.add(Util.getPlayer(args[2]).getUniqueId());
 						}else return false;
 					}else if (args.length == 3) {
-						cache.scores.setScore(plot.getId(), UUID.fromString(args[2]), "team." + plot.getId(), Integer.parseInt(args[1]));
-						team.members.add(UUID.fromString(args[2]));
+						cache.scores.setScore(plot.getId(), Util.getPlayer(args[2]).getUniqueId(), "team." + plot.getId(), Integer.parseInt(args[1]));
+						team.members.add(Util.getPlayer(args[2]).getUniqueId());
 					}else return false;
 					return true;
 				case 5:
+					if(args.length == 2) {
+						if (args[1].equals("*")) sender.sendMessage("Please Use @a instead of '*'");
+						Player p = Util.getPlayer(args[1]);
+						cache.scores.removeScore(p.getUniqueId(), plot.getId(), "team." + plot.getId());
+						for(TeamObject obj : cache.teams.getAllTeams(plot.getId())){
+							if(obj.members.contains(p.getUniqueId())) {
+								obj.members.remove(p.getUniqueId());
+								break;
+							}
+						}
+					}else if(sender instanceof Player){
+						Player p = (Player) sender;
+						cache.scores.removeScore(p.getUniqueId(), plot.getId(), "team." + plot.getId());
+						for(TeamObject obj : cache.teams.getAllTeams(plot.getId())){
+							if(obj.members.contains(p.getUniqueId())) {
+								obj.members.remove(p.getUniqueId());
+								break;
+							}
+						}
+					}else return false;
+					return true;
 				case 6:
+					//TODO: Apply Settings in game
+					team = cache.teams.getTeam(plot.getId(), args[1]);
+					switch(args[2]){
+						case "collisionRule":
+							if(args[3].toLowerCase().contains("never")) team.collisionOwnTeam = team.collisionOtherTeams = false;
+							if(args[3].toLowerCase().contains("otherteam")){ team.collisionOwnTeam = false; team.collisionOtherTeams = true;}
+							if(args[3].toLowerCase().contains("ownteam")){ team.collisionOwnTeam = true; team.collisionOtherTeams = false;}
+							if(args[3].toLowerCase().contains("always")) team.collisionOwnTeam = team.collisionOtherTeams = true;
+							return true;
+						case "color":
+						case "deathMessageVisibility":
+							if(args[3].toLowerCase().contains("never")) team.deathMessageOwnTeam = team.deathMessageOtherTeams = false;
+							if(args[3].toLowerCase().contains("otherteam")){ team.deathMessageOwnTeam = false; team.deathMessageOtherTeams = true;}
+							if(args[3].toLowerCase().contains("ownteam")){ team.deathMessageOwnTeam = true; team.deathMessageOtherTeams = false;}
+							if(args[3].toLowerCase().contains("always")) team.deathMessageOwnTeam = team.deathMessageOtherTeams = true;
+							return true;
+						case "friendlyfire":
+						case "nametagVisibility":
+							if(args[3].toLowerCase().contains("never")) team.nameTagsOwnTeam = team.nameTagsOtherTeam = false;
+							if(args[3].toLowerCase().contains("otherteam")){ team.nameTagsOwnTeam = false; team.nameTagsOtherTeam = true;}
+							if(args[3].toLowerCase().contains("ownteam")){ team.nameTagsOwnTeam = true; team.nameTagsOtherTeam = false;}
+							if(args[3].toLowerCase().contains("always")) team.nameTagsOwnTeam = team.nameTagsOtherTeam = true;
+							return true;
+						case "seeFriendlyInvisibles":
+					}
 				default:
 					sender.sendMessage(messages.getString("subcommands") + " " + String.join(", ", sub));
 					return false;
 			}
 		}
 	}
-	
-	private Location getSenderLoc(CommandSender sender){
-		 Location blockpos = null;
-		if(sender instanceof BlockCommandSender) {
-	        // Commandblock executed command
-			blockpos = ((BlockCommandSender) sender).getBlock().getLocation();
-	    }else if(sender instanceof CommandMinecart) {
-	        // Minecart Commandlock executed command
-	     	blockpos = ((CommandMinecart) sender).getLocation();
-	    }else if(sender instanceof ExecuteSender) {
-	        // Execute
-	        blockpos = ((ExecuteSender) sender).getLocation();
-	    }else if(sender instanceof Player) {
-	        blockpos = ((Player) sender).getLocation();
-	    }
-		return blockpos;
-	}
-	
-	public static Entity getEntity(World w, UUID arg){
-		for (Entity entity : w.getEntities()) {
-            if (entity.getUniqueId().equals(arg))
-                return entity;
-         }
-		return null;
-	}
 
-
-	private boolean checkNBT(Entity e, String arg){
-		try {
-			NBTTagCompound compound = MojangsonParser.parse(arg);
-			NBTTagCompound content = ((CraftEntity)e).getHandle().e(new NBTTagCompound());
-			return checkNBT(content, compound);
-		}catch(MojangsonParseException exc){
-			return false;
-		}
-	}
-
-	private boolean checkNBT(NBTTagCompound content, NBTTagCompound compound){
-		boolean res = true;
-		for(String name : compound.c()){
-			if(content.hasKey(name))
-				if(content.get(name) instanceof  NBTTagCompound)
-					res = res && checkNBT((NBTTagCompound)content.get(name), (NBTTagCompound)compound.get(name));
-				else
-					res = res && content.get(name).equals(compound.get(name));
-			else return false;
-		}
-		return res;
-	}
 }

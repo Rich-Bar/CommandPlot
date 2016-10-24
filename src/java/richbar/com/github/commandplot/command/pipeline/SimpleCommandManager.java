@@ -7,7 +7,7 @@ import org.bukkit.entity.minecart.CommandMinecart;
 
 public class SimpleCommandManager extends Command{
 
-	Command next;
+	final Command next;
 
 	public SimpleCommandManager(Command c) {
 		super(c.getName(), c.getDescription(), c.getUsage(), c.getAliases());

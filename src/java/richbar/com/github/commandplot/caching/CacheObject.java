@@ -6,16 +6,16 @@ import java.io.Serializable;
 	public abstract class CacheObject<T> implements Serializable{
 		
 		protected T object;
-		
-		public CacheObject(T object) {
+
+		protected CacheObject(T object) {
 			this.object = object;
 		}
-		
-		public CacheObject(String parse){
+
+		protected CacheObject(String parse){
 			this.object = fromString(parse);
 		}
-		
-		public CacheObject() {}
+
+		protected CacheObject() {}
 		
 		public T getObject(){
 			return object;

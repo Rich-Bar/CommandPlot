@@ -66,7 +66,7 @@ public enum StatisticLookup {
 	stat_drop(Statistic.DROP),
 	stat_entityKilledBy(Statistic.ENTITY_KILLED_BY);
 	
-	private Statistic statistic;
+	private final Statistic statistic;
 	StatisticLookup(Statistic result){
 		statistic = result;
 	}

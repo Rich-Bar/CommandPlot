@@ -5,7 +5,7 @@ import org.bukkit.World;
 
 public class IsLocation extends Location{
 
-		public boolean isRelative;
+		private boolean isRelative;
 		
 		public IsLocation(World world, double x, double y, double z, boolean isRelative) {
 			super(world, x, y, z);
@@ -47,6 +47,6 @@ public class IsLocation extends Location{
 				setX(worldX);
 				setY(worldY);
 				setZ(worldZ);
-			}catch(Exception e){}
+			}catch(Exception ignored){}
 		}
 	}

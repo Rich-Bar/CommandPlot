@@ -11,15 +11,19 @@ import java.util.UUID;
 
 public class TeamObject{
 
-	public PlotId plotId;
-	public String displayName;
-	public String name;
-	public TeamColor color;
+	private final PlotId plotId;
+	public final String displayName;
+	public final String name;
+	public final TeamColor color;
 	
-	public boolean allowFriendlyFire, SeeFriendlyInvisibles,
-	nameTagsOwnTeam, nameTagsOtherTeam,
-	collisionOwnTeam, collissionOtherTeams,
-	deathMessageOwnTeam, deathMessageOtherTeams;
+	public final boolean allowFriendlyFire;
+	public final boolean SeeFriendlyInvisibles;
+	public boolean nameTagsOwnTeam;
+	public boolean nameTagsOtherTeam;
+	public boolean collisionOwnTeam;
+	public boolean collisionOtherTeams;
+	public boolean deathMessageOwnTeam;
+	public boolean deathMessageOtherTeams;
 
 	public List<UUID> members = new ArrayList<>();
 	
@@ -35,7 +39,7 @@ public class TeamObject{
 		boolean[] booleans = Arrays.copyOfRange(bs, 0, 8);
 		this.allowFriendlyFire = booleans[0];
 		this.collisionOwnTeam = booleans[1];
-		this.collissionOtherTeams = booleans[2];
+		this.collisionOtherTeams = booleans[2];
 		this.deathMessageOtherTeams = booleans[3];
 		this.deathMessageOwnTeam = booleans[4];
 		this.nameTagsOtherTeam = booleans[5];

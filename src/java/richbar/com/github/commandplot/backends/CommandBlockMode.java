@@ -14,8 +14,8 @@ import richbar.com.github.commandplot.caching.sql.SQLCache;
 public class CommandBlockMode extends UndefinedBackend<UUID>{
 	
 	public CommandBlockMode(CPlugin main, BackendType type) {
-		if(type.equals(BackendType.FILE)) backend = new FileCache<UUID>(new File(main.getDataFolder().toString() + "/CommandBlockMode.db"), "cbm");
-		else backend = new SQLCache<UUID>(main.sqlMan, new PlayerSQLWrapper(), UUIDObject.class);
+		if(type.equals(BackendType.FILE)) backend = new FileCache<>(new File(main.getDataFolder().toString() + "/CommandBlockMode.db"), "cbm");
+		else backend = new SQLCache<>(main.sqlMan, new PlayerSQLWrapper(), UUIDObject.class);
 		
 		loadFromBackend();
 	}

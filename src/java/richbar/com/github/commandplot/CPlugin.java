@@ -1,12 +1,14 @@
 package richbar.com.github.commandplot;
 
 import com.intellectualcrafters.plot.PS;
+
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+
 import richbar.com.github.commandplot.api.PlotChecker;
 import richbar.com.github.commandplot.api.PlotSquaredChecker;
 import richbar.com.github.commandplot.backends.ActivePlots;
@@ -20,7 +22,7 @@ import richbar.com.github.commandplot.command.Commands;
 import richbar.com.github.commandplot.command.pipeline.MapChanger;
 import richbar.com.github.commandplot.command.pipeline.SimpleCommandManager;
 import richbar.com.github.commandplot.listener.CommandAccessor;
-import richbar.com.github.commandplot.scoreboard.ScoreboardCache;
+import richbar.com.github.commandplot.listener.CommandPlotListener;
 import richbar.com.github.commandplot.scoreboard.ScoreboardFix;
 import richbar.com.github.commandplot.util.CustomConfig;
 
@@ -35,21 +37,21 @@ public class CPlugin extends JavaPlugin{
 	public ActivePlots activePlots;
 	public ExecutionLimiter limiter;
 	public FileConfiguration messages;
-	public ScoreboardCache scoreboard;
-	public ScoreboardFix commandScoreboard;
+	public CommandBlockMode cbMode;
+	//public ScoreboardCache scoreboard;
 	
     private MapChanger map;
-	private CustomConfig config;
-    private CommandAccessor cmdAcc;
-    private List<String> whitelist = new ArrayList<>();
-    
-    protected CommandBlockMode cbMode;
-    
+	private ScoreboardFix commandScoreboard;
+    private final List<String> whitelist = new ArrayList<>();
 
 	@SuppressWarnings("deprecation")
 	@Override
     public void onEnable() {
+
         PluginManager manager = Bukkit.getServer().getPluginManager();
+		CustomConfig config;
+		CommandPlotListener plotListener;
+		CommandAccessor cmdAcc;
         
         final Plugin plotsquared = manager.getPlugin("PlotSquared");
         if(plotsquared != null && !plotsquared.isEnabled()) {
@@ -77,20 +79,23 @@ public class CPlugin extends JavaPlugin{
 	        sqlMan.mysqlexecution(new PlayerSQLWrapper().getCreateTable());
         }
         
-        scoreboard = new ScoreboardCache(sqlMan, check);
-		commandScoreboard = new ScoreboardFix(messages, scoreboard);
+        //scoreboard = new ScoreboardCache(sqlMan, check);
+		//commandScoreboard = new ScoreboardFix(messages, scoreboard);
 
 		cbMode = new CommandBlockMode(this, BackendType.valueOf(backends.get(0).toUpperCase()));
         activePlots = new ActivePlots(this, BackendType.valueOf(backends.get(1).toUpperCase()));
-        cmdAcc = new CommandAccessor(this, cbMode);
+
+		cmdAcc = new CommandAccessor(this, cbMode);
+		plotListener = new CommandPlotListener(this);
         manager.registerEvents(cmdAcc, this);
+		manager.registerEvents(plotListener, this);
 
 
         for(Commands command : Commands.values()){
 	        whitelist.add(command.getInst().getCommand().toLowerCase());
 	    }
         whitelist.add("reload");
-		whitelist.add("scoreboard");
+		//whitelist.add("scoreboard");
         
         getCommand("commandblockmode").setExecutor(new CBModeCommand(this, cbMode));
         getCommand("commandblock").setExecutor(new CBModeCommand(this, cbMode));
@@ -105,26 +110,24 @@ public class CPlugin extends JavaPlugin{
          * it is used for disabling commandblocks
          * from running other commands than specified!
          */
-        getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
-        	 public void run() {
-        		 try {
-					Class.forName("richbar.com.github.commandplot.command.pipeline.SimpleCommandManager");
-				    getLogger().info("Overriding Standart executors!..");
-	        	} catch (ClassNotFoundException e1) {
-					getLogger().info("This is the free Version!");
-					getLogger().info("Commandblocks may run anything...");
-				}
-				map = new MapChanger(getPlugin(CPlugin.class));
-			    try {
-					map.registerMiddleExecutor();
-				} catch (NoSuchFieldException | SecurityException
-						| IllegalArgumentException | IllegalAccessException e) {
-					 getLogger().warning("Could not Override standart Executors!!!");
-					 getLogger().warning("Commandblocks might run commands of Plugins!!!");
-					e.printStackTrace();
-				}
-			}
-		}, 100L); 	
+        getServer().getScheduler().scheduleSyncDelayedTask(this, () -> {
+            try {
+               Class.forName("richbar.com.github.commandplot.command.pipeline.SimpleCommandManager");
+               getLogger().info("Overriding Standart executors!..");
+           } catch (ClassNotFoundException e1) {
+               getLogger().info("This is the free Version!");
+               getLogger().info("Commandblocks may run anything...");
+           }
+           map = new MapChanger(getPlugin(CPlugin.class));
+           try {
+               map.registerMiddleExecutor();
+           } catch (NoSuchFieldException | SecurityException
+                   | IllegalArgumentException | IllegalAccessException e) {
+                getLogger().warning("Could not Override standart Executors!!!");
+                getLogger().warning("Commandblocks might run commands of Plugins!!!");
+               e.printStackTrace();
+           }
+       }, 100L);
         
         limiter = new ExecutionLimiter(this);
         getServer().getScheduler().scheduleAsyncRepeatingTask(this, limiter, 0, 1);
@@ -135,16 +138,19 @@ public class CPlugin extends JavaPlugin{
 	}
 
 	public Command getCommandManager(Command old){
-		if(old.getLabel().toLowerCase().contains("scoreboard")) return commandScoreboard;
+		//if(old.getLabel().toLowerCase().contains("scoreboard")) return commandScoreboard;
 		if(whitelist.contains(old.getLabel().toLowerCase())) return new CommandManager(this, old);
 		return new SimpleCommandManager(old);
 	}
-	
+
+	public boolean isDebug(){
+		return getConfig().contains("debug") && getConfig().isBoolean("debug");
+	}
 	
 	@Override
 	public void onDisable(){
 		try{
 			map.undo();
-		}catch(Exception e1){}
+		}catch(Exception ignored){}
 	}
 }

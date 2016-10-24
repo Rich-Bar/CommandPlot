@@ -22,11 +22,11 @@ import richbar.com.github.commandplot.caching.sql.SQLCache;
 
 public class ActivePlots extends UndefinedBackend<PlotId> implements CommandExecutor{
 
-	private CPlugin main;
+	private final CPlugin main;
 	
 	public ActivePlots(CPlugin main, BackendType type) {		
-		if(type.equals(BackendType.FILE)) backend = new FileCache<PlotId>(new File(main.getDataFolder().toString() + "/Plots.db"), "active");
-		else backend = new SQLCache<PlotId>(main.sqlMan, new ActivePlotSQLWrapper(), PlotObject.class);
+		if(type.equals(BackendType.FILE)) backend = new FileCache<>(new File(main.getDataFolder().toString() + "/Plots.db"), "active");
+		else backend = new SQLCache<>(main.sqlMan, new ActivePlotSQLWrapper(), PlotObject.class);
 		
 		this.main = main;
 		loadFromBackend();
@@ -43,12 +43,12 @@ public class ActivePlots extends UndefinedBackend<PlotId> implements CommandExec
 
 		boolean changeTo = false;
 		 if(args.length <= 1) changeTo = !contains(psql);
-		 else if(args[1] == "true") changeTo = true;
+		 else if(args[1].equals("true")) changeTo = true;
 		
 		if(changeTo){
 			Plot plot = ((Plot)main.check.getPlot(p.getLocation()));
 			plot.setOwner(null);
-			plot.setFlag(Flags.BLOCKED_CMDS, Arrays.asList(new String[]{"plots", "p", "plot", "ps", "plotsquared", "p2", "2"}));
+			plot.setFlag(Flags.BLOCKED_CMDS, Arrays.asList("plots", "p", "plot", "ps", "plotsquared", "p2", "2"));
 			return addObject(psql);
 		}
 		else{

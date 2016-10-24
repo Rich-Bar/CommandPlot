@@ -10,11 +10,11 @@ import richbar.com.github.commandplot.caching.CacheObject;
 
 public class SQLCache<T> implements CacheBackend<T>{
 
-	protected List<CacheObject<T>> cached = new ArrayList<>();
+	private final List<CacheObject<T>> cached = new ArrayList<>();
 	
-	protected SQLManager sqlMan;
-	protected SQLWrapper sqlWrap;
-	protected Class<?> SQLObjRef;
+	private final SQLManager sqlMan;
+	private final SQLWrapper sqlWrap;
+	private final Class<?> SQLObjRef;
 	
 	public SQLCache(SQLManager sqlMan, SQLWrapper sqlWrap, Class<?> SQLObjRef) {
 		this.sqlMan = sqlMan;
@@ -24,12 +24,11 @@ public class SQLCache<T> implements CacheBackend<T>{
 		loadFromBackend();
 	}
 	
-	public boolean remove(CacheObject<T> elem){
-		if(remSQL(elem)) return cached.remove(elem);
-		return false;
+	public boolean remove(CacheObject<T> elem) {
+		return remSQL(elem) && cached.remove(elem);
 	}
 	
-	protected boolean remSQL(CacheObject<T> elem){
+	private boolean remSQL(CacheObject<T> elem){
 		ResultSet res = sqlMan.mysqlquery(sqlWrap.getObject(elem));
 		if(res == null) return true;
 		if(sqlMan.mysqlexecution(sqlWrap.getRemoveObject(elem)))return true;
@@ -51,11 +50,10 @@ public class SQLCache<T> implements CacheBackend<T>{
 		if(allObjects == null) return;
 		try {
 			while(allObjects.next()){
-				@SuppressWarnings("unchecked")
 				CacheObject<T> sqlObj = ((CacheObject<T>)SQLObjRef.newInstance());
 				sqlObj.fromString(allObjects.getString(sqlWrap.getTypeName()));
 				cached.add(sqlObj);
 			}
-		} catch (InstantiationException | IllegalAccessException | SQLException e) {}
+		} catch (InstantiationException | IllegalAccessException | SQLException ignored) {}
 	}
 }

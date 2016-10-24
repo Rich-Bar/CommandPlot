@@ -5,7 +5,7 @@ import richbar.com.github.commandplot.CPlugin;
 public class CommandPlotCommand extends BranchingCommand{
 
 	public CommandPlotCommand(CPlugin main) {
-		super(main.messages);
+		super(main.messages, "commandplot");
 		subExecutors.put("alwaysactive", main.activePlots);
 	}
 }

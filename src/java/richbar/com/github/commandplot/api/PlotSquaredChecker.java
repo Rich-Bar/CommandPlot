@@ -24,9 +24,11 @@ public class PlotSquaredChecker extends PlotChecker<PS>{
 		someone.addAll(getPlot(loc).getOwners());
 		for(UUID idPlayer : someone){
 			PlotPlayer p = PlotPlayer.wrap(idPlayer);
-			Location playerLoc = toBukkitLoc(p.getLocation());
-			if(isSamePlot(loc, playerLoc)) 
-				someOneAlive = true;
+			if(p != null){
+				Location playerLoc = toBukkitLoc(p.getLocation());
+				if(isSamePlot(loc, playerLoc))
+					someOneAlive = true;
+			}
 		}
 		return someOneAlive;
     }

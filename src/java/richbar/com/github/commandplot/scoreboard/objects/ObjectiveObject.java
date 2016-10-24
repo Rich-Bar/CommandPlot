@@ -6,8 +6,10 @@ import com.intellectualcrafters.plot.object.PlotId;
 
 public class ObjectiveObject{
 
-	public PlotId id;
-	public String name, displayName, criteria;
+	public final PlotId id;
+	public final String name;
+    public final String displayName;
+    public final String criteria;
 	public DisplaySlot slot = DisplaySlot.SIDEBAR;
 	
 	public ObjectiveObject(PlotId pId, String name, String displayName, String criteria) {
