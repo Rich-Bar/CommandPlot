@@ -23,36 +23,39 @@ import richbar.com.github.commandplot.command.pipeline.MapChanger;
 import richbar.com.github.commandplot.command.pipeline.SimpleCommandManager;
 import richbar.com.github.commandplot.listener.CommandAccessor;
 import richbar.com.github.commandplot.listener.CommandPlotListener;
+import richbar.com.github.commandplot.scoreboard.ScoreboardCache;
 import richbar.com.github.commandplot.scoreboard.ScoreboardFix;
 import richbar.com.github.commandplot.util.CustomConfig;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
 
 public class CPlugin extends JavaPlugin{
 
 	public SQLManager sqlMan;
 	public PlotChecker<?> check;
 	public ActivePlots activePlots;
-	public ExecutionLimiter limiter;
 	public FileConfiguration messages;
 	public CommandBlockMode cbMode;
-	//public ScoreboardCache scoreboard;
+	public ScoreboardCache scoreboard;
 	
     private MapChanger map;
+    private CustomConfig config;
 	private ScoreboardFix commandScoreboard;
     private final List<String> whitelist = new ArrayList<>();
+
+	ExecutionLimiter limiter;
 
 	@SuppressWarnings("deprecation")
 	@Override
     public void onEnable() {
 
         PluginManager manager = Bukkit.getServer().getPluginManager();
-		CustomConfig config;
 		CommandPlotListener plotListener;
 		CommandAccessor cmdAcc;
-        
+
         final Plugin plotsquared = manager.getPlugin("PlotSquared");
         if(plotsquared != null && !plotsquared.isEnabled()) {
             manager.disablePlugin(this);
@@ -65,7 +68,8 @@ public class CPlugin extends JavaPlugin{
         
         List<String> backends = Arrays.asList(config.getConfig().getString("backends.commandblockmode").toLowerCase(),
 				config.getConfig().getString("backends.activeplots").toLowerCase());
-        
+
+        if(isDebug()) getLogger().log(Level.WARNING, "Running in debug mode!");
         if(backends.contains("sql")){
 	        String host = config.getConfig().getString("connection.host");
 	        String schema = config.getConfig().getString("connection.schema");
@@ -79,8 +83,8 @@ public class CPlugin extends JavaPlugin{
 	        sqlMan.mysqlexecution(new PlayerSQLWrapper().getCreateTable());
         }
         
-        //scoreboard = new ScoreboardCache(sqlMan, check);
-		//commandScoreboard = new ScoreboardFix(messages, scoreboard);
+        scoreboard = new ScoreboardCache(sqlMan, check);
+		commandScoreboard = new ScoreboardFix(messages, scoreboard);
 
 		cbMode = new CommandBlockMode(this, BackendType.valueOf(backends.get(0).toUpperCase()));
         activePlots = new ActivePlots(this, BackendType.valueOf(backends.get(1).toUpperCase()));
@@ -95,7 +99,7 @@ public class CPlugin extends JavaPlugin{
 	        whitelist.add(command.getInst().getCommand().toLowerCase());
 	    }
         whitelist.add("reload");
-		//whitelist.add("scoreboard");
+		whitelist.add("scoreboard");
         
         getCommand("commandblockmode").setExecutor(new CBModeCommand(this, cbMode));
         getCommand("commandblock").setExecutor(new CBModeCommand(this, cbMode));
@@ -118,8 +122,8 @@ public class CPlugin extends JavaPlugin{
                getLogger().info("This is the free Version!");
                getLogger().info("Commandblocks may run anything...");
            }
-           map = new MapChanger(getPlugin(CPlugin.class));
            try {
+               map = new MapChanger(getPlugin(CPlugin.class));
                map.registerMiddleExecutor();
            } catch (NoSuchFieldException | SecurityException
                    | IllegalArgumentException | IllegalAccessException e) {
@@ -133,18 +137,18 @@ public class CPlugin extends JavaPlugin{
         getServer().getScheduler().scheduleAsyncRepeatingTask(this, limiter, 0, 1);
     }
 
-	public List<String> getWhitelist(){
+    List<String> getWhitelist(){
 		return whitelist;
 	}
 
 	public Command getCommandManager(Command old){
-		//if(old.getLabel().toLowerCase().contains("scoreboard")) return commandScoreboard;
+		if(old.getLabel().toLowerCase().contains("scoreboard")) return commandScoreboard;
 		if(whitelist.contains(old.getLabel().toLowerCase())) return new CommandManager(this, old);
 		return new SimpleCommandManager(old);
 	}
 
-	public boolean isDebug(){
-		return getConfig().contains("debug") && getConfig().isBoolean("debug");
+    boolean isDebug(){
+		return config.getConfig().contains("debug") && config.getConfig().getBoolean("debug");
 	}
 	
 	@Override

@@ -1,6 +1,4 @@
-﻿debug: true
-
-execution-failed: Command Execution failed! The following args are the reason
+﻿execution-failed: Command Execution failed! The following args are the reason
 execution-exception: Command Execution failed! Exception
 
 cbm-enter: You've entered the 'Commanblock Mode', be aware that you cannot run any commands while in this mode!

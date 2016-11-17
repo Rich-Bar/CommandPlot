@@ -262,8 +262,7 @@ public class CommandManager extends SimpleCommandManager{
     		for(String f : invalidArgs) sender.sendMessage(f + ": " + args[Integer.parseInt(f)]);
     		return false;
     	}catch(IllegalArgumentException|NullPointerException exc){
-    		Logger logger = main.getLogger();
-    		logger.info(main.messages.getString("execution-exception"));
+            main.getLogger().info(main.messages.getString("execution-exception"));
     		exc.printStackTrace();
     		return false;
     	}
