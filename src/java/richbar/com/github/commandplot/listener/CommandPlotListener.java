@@ -30,7 +30,6 @@ public class CommandPlotListener implements Listener{
 	@EventHandler
     public void onPlotLeave(PlayerLeavePlotEvent event) {
 		main.cbMode.remove(new UUIDObject(event.getPlayer().getUniqueId()));
-        main.scoreboard.players.put(event.getPlot().getId(), event.getPlayer().getUniqueId());
 	}
 	
 	@EventHandler
@@ -40,6 +39,7 @@ public class CommandPlotListener implements Listener{
 
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event){
+		
 	}
 
 	@EventHandler
