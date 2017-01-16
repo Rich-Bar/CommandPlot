@@ -24,7 +24,7 @@ class CustomCommandMap {
 	void init() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException{
 		PluginManager manager = main.getServer().getPluginManager();
 		SimplePluginManager spm = (SimplePluginManager) manager;
-		
+
 		Field commandMapField;
 		if (spm != null)
 		{

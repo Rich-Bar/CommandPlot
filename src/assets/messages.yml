@@ -1,21 +1,29 @@
-﻿debug: true
+﻿
+execution-fail-perm: "You don't have the needed permissions to perform this command"
+execution-failed: "Command Execution failed! The following args are the reason"
+execution-exception: "Command Execution failed! Exception"
+execution-fail-limit-exceeded: "too many executions!"
+execution-fail-not-active: "no Plotmember in plot nor is plot always active!"
+blacklisted-command: "This command is blacklisted"
+whitelist-not-contained: "This command is not whitelisted"
 
-execution-failed: Command Execution failed! The following args are the reason
-execution-exception: Command Execution failed! Exception
+subcommands: "Valid subcommands are:"
 
-cbm-enter: You've entered the 'Commanblock Mode', be aware that you cannot run any commands while in this mode!
-cbm-leave: You've left the 'Commanblock Mode', you can run commands again now!
-cbm-auto-disable: Commandblock Mode auto-disabled!
-cbm-command-fail: Sorry! You can't run commands while in Commandblock Mode...
+players_list: "Plot Players:"
+player_scores: "Player Scores:"
+objectives_list: "Plot Objectives:"
+objective_info: "Objective Info:"
+teams_list: "Plot Teams:"
+team_info: "Team Info:"
 
-always-active-on: You've enabled always-active mode for this plot!
-always-active-off: You've disabled always-active mode for this plot!
+no-team-found: "Could not find team!"
 
-subcommands: Valid subcommands are:
-players_list: Plot Players:
-player_scores: Player Scores:
-objectives_list: Plot Objectives:
-objective_info: Plot Objectives:
-teams_list: Plot Teams:
+cbm-enter: "You've entered the 'Commanblock Mode', be aware that you cannot run any commands while in this mode!"
+cbm-leave: "You've left the 'Commanblock Mode', you can run commands again now!"
+cbm-auto-disable: "Commandblock Mode auto-disabled!"
+cbm-command-fail: "Sorry! You can't run commands while in Commandblock Mode..."
 
-no-team-found: Could not find team!
+always-active-on: "You've enabled always-active mode for this plot!"
+always-active-off: "You've disabled always-active mode for this plot!"
+
+not-in-PlotWorld: "You're not executing from a PlotWorld?!"

@@ -18,6 +18,10 @@ public class ExecuteSender implements CommandSender{
 		location = loc;
 		sender = origSender;
 	}
+
+	public final CommandSender getSender(){
+        return sender;
+    }
 	
 	@Override
 	public PermissionAttachment addAttachment(Plugin paramPlugin) {

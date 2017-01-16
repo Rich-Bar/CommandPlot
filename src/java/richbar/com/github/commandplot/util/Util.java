@@ -1,24 +1,28 @@
 package richbar.com.github.commandplot.util;
 
-import net.minecraft.server.v1_10_R1.MojangsonParseException;
-import net.minecraft.server.v1_10_R1.MojangsonParser;
-import net.minecraft.server.v1_10_R1.NBTTagCompound;
+import com.intellectualcrafters.plot.object.Plot;
+import com.intellectualcrafters.plot.object.RegionWrapper;
+import net.minecraft.server.v1_10_R1.*;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.command.BlockCommandSender;
-import org.bukkit.command.CommandSender;
+import org.bukkit.command.*;
+import org.bukkit.craftbukkit.v1_10_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_10_R1.command.CraftBlockCommandSender;
+import org.bukkit.craftbukkit.v1_10_R1.command.ProxiedNativeCommandSender;
 import org.bukkit.craftbukkit.v1_10_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_10_R1.entity.CraftMinecartCommand;
+import org.bukkit.craftbukkit.v1_10_R1.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.minecart.CommandMinecart;
 
 import richbar.com.github.commandplot.command.ExecuteSender;
+import richbar.com.github.commandplot.command.TestForSender;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class Util {
 
@@ -39,6 +43,28 @@ public class Util {
         }
         return blockpos;
     }
+	
+	public static ICommandListener getListener(CommandSender sender) {
+		if (sender instanceof ExecuteSender) {
+			return getListener(((ExecuteSender) sender).getSender());
+		} else if (sender instanceof TestForSender) {
+			return getListener(((TestForSender) sender).getSender());
+		} else if (sender instanceof Player) {
+			return ((CraftPlayer) sender).getHandle();
+		} else if (sender instanceof BlockCommandSender) {
+			return ((CraftBlockCommandSender) sender).getTileEntity();
+		} else if (sender instanceof CommandMinecart) {
+			return ((EntityMinecartCommandBlock) ((CraftMinecartCommand) sender).getHandle()).getCommandBlock();
+		} else if (sender instanceof RemoteConsoleCommandSender) {
+			return ((DedicatedServer) MinecraftServer.getServer()).remoteControlCommandListener;
+		} else if (sender instanceof ConsoleCommandSender) {
+			return ((CraftServer) sender.getServer()).getServer();
+		} else if (sender instanceof ProxiedCommandSender) {
+			return ((ProxiedNativeCommandSender) sender).getHandle();
+		} else {
+			throw new IllegalArgumentException("Cannot make " + sender + " a vanilla command listener");
+		}
+	}
 
     public static Entity getEntity(World w, UUID arg){
         for (Entity entity : w.getEntities()) {
@@ -80,13 +106,52 @@ public class Util {
         return p;
     }
 
-    public static Map<UUID, Object> getUUIDset(Object... es){
-        Map<UUID, Object> res = new HashMap<>();
-        for(Object e : es){
-            if(e instanceof Player)res.put(((Player) e).getUniqueId(), e);
-            else if(e instanceof Entity)res.put(((Entity) e).getUniqueId(), e);
-        }
+    public static Map<UUID, Entity> getUUIDset(Set<Entity> es){
+        Map<UUID, Entity> res = new HashMap<>();
+        for(Entity e : es) res.put(e.getUniqueId(), e);
         return res;
     }
 
+    public static Set<Chunk> getAllChunks(Plot p){
+        World w = Bukkit.getWorld(p.getArea().worldname);
+        HashSet<Chunk> chunks = new HashSet<>();
+        for (RegionWrapper region : p.getRegions()) {
+            for (int x = region.minX >> 4; x <= region.maxX >> 4; x++) {
+                for (int z = region.minZ >> 4; z <= region.maxZ >> 4; z++) {
+                    chunks.add(w.getChunkAt(x, z));
+                }
+            }
+        }
+        return chunks;
+    }
+
+    public static Set<Entity> getEntitiesInPlot(Plot plot){
+        Set<Entity> entities = new HashSet<>();
+
+        for(Chunk c : getAllChunks(plot)){
+            entities.addAll(Arrays.asList(c.getEntities()));
+        }
+        return entities;
+    }
+
+    public static boolean insideRegion(Location loc, Location c1, Location c2){
+        return ((loc.getX() > c1.getX() && loc.getX() < c1.getX()) &&
+               (loc.getY() > c1.getY() && loc.getY() < c1.getY()) &&
+               (loc.getX() > c1.getX() && loc.getX() < c1.getX()))||
+               (loc.getX() < c1.getX() && loc.getX() > c1.getX()) &&
+               (loc.getY() < c1.getY() && loc.getY() > c1.getY()) &&
+               (loc.getX() < c1.getX() && loc.getX() > c1.getX());
+    }
+
+    public static <K,V extends Comparable<? super V>>
+    SortedSet<Map.Entry<K,V>> sortByValue(Map<K, V> map) {
+        SortedSet<Map.Entry<K, V>> sortedEntries = new TreeSet<>(
+                (Comparator<Map.Entry<K, V>>) (e1, e2) -> {
+                    int res = e1.getValue().compareTo(e2.getValue());
+                    return res != 0 ? res : 1;
+                }
+        );
+        sortedEntries.addAll(map.entrySet());
+        return sortedEntries;
+    }
 }

@@ -1,8 +1,7 @@
 package richbar.com.github.commandplot.scoreboard.objects;
 
-import org.bukkit.scoreboard.DisplaySlot;
-
 import com.intellectualcrafters.plot.object.PlotId;
+import org.bukkit.scoreboard.DisplaySlot;
 
 public class ObjectiveObject{
 

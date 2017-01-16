@@ -20,6 +20,10 @@ public class TestForSender implements CommandSender{
 		sender = origSender;
 	}
 
+    public final CommandSender getSender(){
+        return sender;
+    }
+
 	@Override
 	public void sendMessage(String paramString) {
 		success = Objects.equals(paramString, "commands.compare.success");

@@ -1,6 +1,6 @@
 package richbar.com.github.commandplot.caching.sql;
 
-public class ActivePlotSQLWrapper extends SQLWrapper{
+public class PlotIdSQLWrapper extends SQLWrapper{
 
 	@Override
 	public String getTableName() {

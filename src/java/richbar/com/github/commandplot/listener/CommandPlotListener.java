@@ -2,51 +2,61 @@ package richbar.com.github.commandplot.listener;
 
 import com.plotsquared.bukkit.events.PlotDeleteEvent;
 
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import com.plotsquared.bukkit.events.PlayerEnterPlotEvent;
 import com.plotsquared.bukkit.events.PlayerLeavePlotEvent;
 
 import richbar.com.github.commandplot.CPlugin;
+import richbar.com.github.commandplot.backends.CommandBlockMode;
 import richbar.com.github.commandplot.caching.objects.UUIDObject;
 
 public class CommandPlotListener implements Listener{
 
 	private final CPlugin main;
+    private final CommandBlockMode cbMode;
 
-	public CommandPlotListener(CPlugin main){
+    public CommandPlotListener(CPlugin main, CommandBlockMode cbMode){
 		this.main = main;
-	}
-
-
-	@EventHandler
-	public void onPlotEnter(PlayerEnterPlotEvent event) {
-		
+        this.cbMode = cbMode;
 	}
 	
 	@EventHandler
     public void onPlotLeave(PlayerLeavePlotEvent event) {
-		main.cbMode.remove(new UUIDObject(event.getPlayer().getUniqueId()));
+        Player p = event.getPlayer();
+        if(cbMode.contains(new UUIDObject(p.getUniqueId()))){
+            if(!p.hasPermission("plots.commandplot.admin"))p.setOp(false);
+            p.sendMessage(main.messages.getColoredString("cbm-leave"));
+            cbMode.remove(new UUIDObject(p.getUniqueId()));
+        }
 	}
 	
 	@EventHandler
 	public void onPlayerQuit(PlayerQuitEvent event) {
-
+        Player p = event.getPlayer();
+        if(cbMode.contains(new UUIDObject(p.getUniqueId()))){
+            if(!p.hasPermission("plots.commandplot.admin"))p.setOp(false);
+            p.sendMessage(main.messages.getColoredString("cbm-leave"));
+            cbMode.remove(new UUIDObject(p.getUniqueId()));
+        }
 	}
+
 
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event){
-		
+        Player p = event.getPlayer();
+        if(cbMode.contains(new UUIDObject(p.getUniqueId()))){
+            if(!p.hasPermission("plots.commandplot.admin"))p.setOp(false);
+            p.sendMessage(main.messages.getColoredString("cbm-leave"));
+            cbMode.remove(new UUIDObject(p.getUniqueId()));
+        }
 	}
 
 	@EventHandler
 	public void onPlotDelete(PlotDeleteEvent event){
-		/*main.scoreboard.teams.removePlot(event.getPlotId());
-		main.scoreboard.objectives.removePlot(event.getPlotId());
-		main.scoreboard.scores.removePlot(event.getPlotId());*/
-	}
-	 
+        //ToDo: clear Scoreboard and SQL
+    }
 }

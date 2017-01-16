@@ -47,11 +47,9 @@ public class TeamWrapper{
 		for(int j = fact-1; j >= 0; j--){
 			if(i - Math.pow(2, j) >= 0){
 				res[j] = true;
-				System.out.print("1");
 				i -= Math.pow(2, j);
 			}else{
 				res[j] = false;
-				System.out.print("0");
 			} 
 			
 		}

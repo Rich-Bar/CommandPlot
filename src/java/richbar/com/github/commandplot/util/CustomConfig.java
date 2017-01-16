@@ -1,7 +1,10 @@
 package richbar.com.github.commandplot.util;
 
 import java.io.File;
- 
+
+import net.minecraft.server.v1_10_R1.ChatMessage;
+import net.minecraft.server.v1_10_R1.EnumChatFormat;
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
@@ -18,7 +21,22 @@ public class CustomConfig {
                 this.configName = configName;
                 createIfNoExist();
         }
-       
+
+        public ChatMessage getErrorTypeString(String path){
+            ChatMessage cm = new ChatMessage(getConfig().getString(path));
+            cm.getChatModifier().setColor(EnumChatFormat.DARK_RED);
+            return cm;
+        }
+
+        public ChatMessage getErrorFormat(String s){
+            ChatMessage cm = new ChatMessage(s);
+            cm.getChatModifier().setColor(EnumChatFormat.DARK_RED);
+            return cm;
+        }
+
+        public String getColoredString(String path){
+            return ChatColor.translateAlternateColorCodes('&', getConfig().getString(path));
+        }
        
         private File getConfigFile() {
                 return this.configFile;

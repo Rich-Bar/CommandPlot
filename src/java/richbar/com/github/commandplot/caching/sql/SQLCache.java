@@ -10,7 +10,7 @@ import richbar.com.github.commandplot.caching.CacheObject;
 
 public class SQLCache<T> implements CacheBackend<T>{
 
-	private final List<CacheObject<T>> cached = new ArrayList<>();
+	private final List<String> cached = new ArrayList<>();
 	
 	private final SQLManager sqlMan;
 	private final SQLWrapper sqlWrap;
@@ -25,7 +25,7 @@ public class SQLCache<T> implements CacheBackend<T>{
 	}
 	
 	public boolean remove(CacheObject<T> elem) {
-		return remSQL(elem) && cached.remove(elem);
+		return remSQL(elem) && cached.remove(elem.toString());
 	}
 	
 	private boolean remSQL(CacheObject<T> elem){
@@ -37,12 +37,12 @@ public class SQLCache<T> implements CacheBackend<T>{
 	}
 	
 	public boolean addObject(CacheObject<T> elem){
-		cached.add(elem);
+		cached.add(elem.toString().toLowerCase());
 		return sqlMan.mysqlexecution(sqlWrap.getAddObject(elem));
 	}
 	
 	public boolean contains(CacheObject<T> elem){
-		return cached.contains(elem);
+		return cached.contains(elem.toString().toLowerCase());
 	}
 	
 	public void loadFromBackend(){
@@ -52,7 +52,7 @@ public class SQLCache<T> implements CacheBackend<T>{
 			while(allObjects.next()){
 				CacheObject<T> sqlObj = ((CacheObject<T>)SQLObjRef.newInstance());
 				sqlObj.fromString(allObjects.getString(sqlWrap.getTypeName()));
-				cached.add(sqlObj);
+				cached.add(sqlObj.toString().toLowerCase());
 			}
 		} catch (InstantiationException | IllegalAccessException | SQLException ignored) {}
 	}

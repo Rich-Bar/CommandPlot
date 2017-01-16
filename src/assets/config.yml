@@ -17,7 +17,49 @@ connection:
   schema: database
   username: user
   password: password
-  
+
+targeting:
+  # Use "@" if you have the paid version and replaced the PlayerSelector.class in the Server jar with the one in the plugin
+  indicator: "@@"
+  maxRadius: 275
+  #canTargetPermGroup: true
+  #canTargetPlotGroup: true
+
+commands:
+  # Deny Commandblocks access to:
+  blacklist:
+    - "minecraft:op"
+    - "op"
+    - "minecraft:kick"
+    - "kick"
+    - "minecraft:ban"
+    - "ban"
+    - "minecraft:deop"
+    - "deop"
+
+  # Be Cautious to add the Arguments to check after '-' use commas for multiple
+  # Valid Argument Types are [case insensitive]:
+  #   MOB, ENTITY, COORDS, RELCOORDS, ARG, MAX1, MAX2, PLAYER, COMMAND, ENTITYorCOORD
+  #whitelist:
+  #  - "essentials:god-Player"
+  #  - "god-Player"
+
+
+# low case!
+mobs.blacklist:
+  - "primedtnt"
+  - "endermite"
+  - "silverfish"
+  - "ghast"
+  - "enderman"
+  - "blaze"
+  - "witherboss"
+  - "enderdragon"
+  - "fallingsand"
+  - "shulkerbullet"
+
+
+
 #
 # Permissions :
 # To allow players to access certain commands themselves
@@ -26,4 +68,28 @@ connection:
 # - > http://wiki.bukkit.org/CraftBukkit_Commands
 #
 # [ Standart MC: http://minecraft.gamepedia.com/Commands ]
+#
+# -- --- ------------------------------------------------- --- --
+#
+# Not yet implemented Commands
+#
+#
+# C: AllowPlace x,y,z, dx,dy,dz Player bool
+# C: AllowDestroy x,y,z, dx,dy,dz Player bool
+#
+# C: Scoreboard ...
+# C: Tag ...
+# C: Team ...
+# C: Trigger ...
+#
+# -- --- ------------------------------------------------- --- --
+#
+# Not yet implemented Settings:
+#
+#
+# B: Can Target PlayerVars like [r=player.health] etc
+#
+# B: Allow Competitions
+# I: Max Competition Size
+
 debug: false

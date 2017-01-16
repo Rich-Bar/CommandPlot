@@ -7,7 +7,7 @@ import com.intellectualcrafters.plot.object.PlotId;
 
 public class ExecutionLimiter implements Runnable{
 
-	private final Map<PlotId, Integer> counter = new HashMap<>();
+	private Map<PlotId, Integer> counter = new HashMap<>();
 	private int limit = 200;
 	
 	public ExecutionLimiter(CPlugin main) {
@@ -15,9 +15,7 @@ public class ExecutionLimiter implements Runnable{
 	}
 	
 	@Override
-	public void run() {
-		counter.clear();
-	}
+	public void run(){counter = new HashMap<>();}
 	
 	public void add(PlotId id){
 		if(counter.get(id) == null) counter.put(id, 1);
@@ -25,7 +23,7 @@ public class ExecutionLimiter implements Runnable{
 	}
 	
 	public boolean check(PlotId id){
-		return counter.get(id) == null || counter.get(id) <= limit;
+		return counter.get(id) == null || counter.get(id) < limit;
 	}
 
 }

@@ -1,44 +1,46 @@
 package richbar.com.github.commandplot.command;
 
 import net.minecraft.server.v1_10_R1.*;
+import org.bukkit.command.CommandExecutor;
+import richbar.com.github.commandplot.scoreboard.ScoreboardFix;
 
 public enum Commands{
 
-    BLOCKDATA       (new CommandBlockData(),ElemType.COORDS, ElemType.REST),
-    CLEAR	(new CommandClear(), ElemType.PLAYER, ElemType.REST),
-    CLONE	(new CommandClone(), ElemType.COORDS, ElemType.COORDS, ElemType.DCOORDS, ElemType.REST),
-    EFFECT	(new CommandEffect(), ElemType.ENTITY, ElemType.REST),
-    ENCHANT	(new CommandEnchant(), ElemType.PLAYER, ElemType.REST),
-    ENTITYDATA      (new CommandEntityData(),ElemType.ENTITY, ElemType.REST),
-    EXECUTE(new CommandExecute(), ElemType.ENTITY, ElemType.DCOORDS, ElemType.COMMAND),
-    FILL	(new CommandFill(), ElemType.COORDS, ElemType.COORDS, ElemType.REST),
-    GAMEMODE(new CommandGamemode(), ElemType.ARG, ElemType.PLAYER),
-    GIVE	(new CommandGive(), ElemType.PLAYER, ElemType.ARG, ElemType.REST),
-    KILL	(new CommandKill(), ElemType.ENTITY),
-    PARTICLE(new CommandParticle(), ElemType.ARG, ElemType.COORDS, ElemType.DCOORDS, ElemType.REST),
+    BLOCKDATA       (new CommandBlockData(),ElemType.COORDS),
+    CLEAR	        (new CommandClear(), ElemType.PLAYER),
+    CLONE	        (new CommandClone(), ElemType.COORDS, ElemType.COORDS, ElemType.RELCOORDS),
+    EFFECT	        (new CommandEffect(), ElemType.ENTITY),
+    ENCHANT	        (new CommandEnchant(), ElemType.PLAYER),
+    ENTITYDATA      (new CommandEntityData(),ElemType.ENTITY),
+    EXECUTE         (new CommandExecute(), ElemType.ENTITY, ElemType.RELCOORDS, ElemType.COMMAND),
+    FILL	        (new CommandFill(), ElemType.COORDS, ElemType.COORDS),
+    GAMEMODE        (new CommandGamemode(), ElemType.ARG, ElemType.PLAYER),
+    GIVE	        (new CommandGive(), ElemType.PLAYER, ElemType.ARG),
+    KILL	        (new CommandKill(), ElemType.ENTITY),
+    PARTICLE        (new CommandParticle(), ElemType.ARG, ElemType.COORDS, ElemType.RELCOORDS),
     PLAYSOUND       (new CommandPlaySound(),ElemType.ARG, ElemType.ARG, ElemType.PLAYER, ElemType.COORDS, ElemType.MAX2, ElemType.MAX2, ElemType.MAX1),
-    REPLACEITEM     (new CommandReplaceItem(), ElemType.ARG, ElemType.ENTITYorCOORD, ElemType.REST),
-    REPLACEITEMCOORD(new CommandReplaceItem(), ElemType.ARG, ElemType.COORDS, ElemType.REST),
-    SAY		(new CommandSay(), ElemType.REST),
+    REPLACEITEM     (new CommandReplaceItem(), ElemType.ARG, ElemType.ENTITYorCOORD),
+    REPLACEITEMCOORD(new CommandReplaceItem(), ElemType.ARG, ElemType.COORDS),
+    SAY		        (new CommandSay()),
 
     //STATS(...),
 
-    SETBLOCK(new CommandSetBlock(), ElemType.COORDS, ElemType.REST),
-    SPREADPLAYERS   (new CommandSpreadPlayers(), ElemType.DCOORDS, ElemType.REST),
-    STOPSOUND       (new CommandStopSound(), ElemType.PLAYER, ElemType.REST),
-    SUMMON	(new CommandSummon(), ElemType.MOB, ElemType.COORDS, ElemType.REST),
-    TELL	(new CommandTell(), ElemType.PLAYER, ElemType.REST),
-    TELLRAW	(new CommandTellRaw(), ElemType.PLAYER, ElemType.REST),
-    TESTFOR	(new CommandTestFor(), ElemType.PLAYER, ElemType.REST),
-    TESTFORBLOCK    (new CommandTestForBlock(), ElemType.COORDS, ElemType.REST),
-    TESTFORBLOCKS   (new CommandTestForBlocks(), ElemType.COORDS, ElemType.COORDS, ElemType.REST),
-    TITLE	(new CommandTitle(), ElemType.PLAYER, ElemType.REST),
-    TP		(new CommandTp(), ElemType.PLAYER, ElemType.ENTITYorCOORD),
-    TPCOORD	(new CommandTp(), ElemType.PLAYER, ElemType.COORDS),
+    SETBLOCK        (new CommandSetBlock(), ElemType.COORDS),
+    SPREADPLAYERS   (new CommandSpreadPlayers(), ElemType.RELCOORDS),
+    STOPSOUND       (new CommandStopSound(), ElemType.PLAYER),
+    SUMMON	        (new CommandSummon(), ElemType.MOB, ElemType.COORDS),
+    TELL	        (new CommandTell(), ElemType.PLAYER),
+    TELLRAW	        (new CommandTellRaw(), ElemType.PLAYER),
+    TESTFOR	        (new CommandTestFor(), ElemType.PLAYER),
+    TESTFORBLOCK    (new CommandTestForBlock(), ElemType.COORDS),
+    TESTFORBLOCKS   (new CommandTestForBlocks(), ElemType.COORDS, ElemType.COORDS),
+    TITLE	        (new CommandTitle(), ElemType.PLAYER),
+    TP		        (new CommandTp(), ElemType.PLAYER, ElemType.ENTITYorCOORD),
+    TPCOORD	        (new CommandTp(), ElemType.PLAYER, ElemType.COORDS),
 
-    //TRIGGER (new CommandTrigger(), ElemType.REST),
+    //TRIGGER       (new CommandTrigger(), ElemType.REST),
 
-    XP		(new CommandXp(), ElemType.ARG, ElemType.PLAYER);
+    XP		        (new CommandXp(), ElemType.ARG, ElemType.PLAYER);
 
     final CommandAbstract id;
     private final ElemType[] elements;
@@ -69,7 +71,7 @@ public enum Commands{
                     res++;
                     break;
                 case COORDS:
-                case DCOORDS:
+                case RELCOORDS:
                     res += 3;
                 default:
                     break;
